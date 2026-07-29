@@ -18,6 +18,7 @@ import ProductCard from "../../components/product-card";
 import Header from "../../components/header";
 import EmptyState from "../../components/empty-state";
 import { Product } from "../../types/product.type";
+import LoadingScreen from "../../components/LoadingScreen";
 
 const CATEGORIES = [
   "Electronics",
@@ -158,11 +159,8 @@ export default function ExploreScreen() {
   );
 
   if (loading) {
-    return (
-      <View className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"} items-center justify-center`}>
-        <ActivityIndicator size="large" color="#22C55E" />
-      </View>
-    );
+      return <LoadingScreen message="Loading amazing deals..." />;
+
   }
 
   return (
