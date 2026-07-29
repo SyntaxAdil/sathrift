@@ -12,11 +12,11 @@ import {
   StatusBar,
   Image,
   ScrollView,
+  useColorScheme,
 } from "react-native";
 import { router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { authClient } from "@/lib/auth-client";
-import { useColorScheme } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 
 export default function SignUp() {
@@ -29,6 +29,9 @@ export default function SignUp() {
   const [image, setImage] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [focusedField, setFocusedField] = useState<
+    "name" | "email" | "password" | null
+  >(null);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -105,6 +108,16 @@ export default function SignUp() {
     }
   };
 
+  const mutedIcon = isDark ? "#6B7280" : "#9CA3AF";
+  const subtleIcon = isDark ? "#9CA3AF" : "#64748B";
+
+  const fieldBorder = (field: "name" | "email" | "password") =>
+    focusedField === field
+      ? "border-emerald-500"
+      : isDark
+      ? "border-gray-700"
+      : "border-gray-200";
+
   return (
     <>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
@@ -116,9 +129,11 @@ export default function SignUp() {
         <ScrollView
           contentContainerStyle={{ flexGrow: 1 }}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
-          <View className="flex-1 px-6 pt-12 pb-6">
-            <View className="items-center mb-4">
+          <View className="flex-1 px-6 pt-12 pb-8 gap-6">
+            {/* Logo */}
+            <View className="items-center">
               <Image
                 source={require("@/assets/images/logo.png")}
                 className="w-32 h-12"
@@ -126,17 +141,23 @@ export default function SignUp() {
               />
             </View>
 
-            <View className="mb-5">
-              <Text className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+            {/* Header */}
+            <View className="gap-1.5">
+              <Text
+                className={`text-3xl font-bold tracking-tight ${
+                  isDark ? "text-white" : "text-gray-900"
+                }`}
+              >
                 Create Account
               </Text>
-              <Text className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"} mt-1`}>
+              <Text className={`text-base ${isDark ? "text-gray-400" : "text-gray-500"}`}>
                 Join the community and start thrifting
               </Text>
             </View>
 
-            <View className="items-center mb-4">
-              <TouchableOpacity onPress={pickImage} className="relative">
+            {/* Avatar picker */}
+            <View className="items-center gap-2">
+              <TouchableOpacity onPress={pickImage} activeOpacity={0.85} className="relative">
                 <View className="w-20 h-20 rounded-full bg-emerald-500 items-center justify-center overflow-hidden">
                   {image ? (
                     <Image source={{ uri: image }} className="w-full h-full" resizeMode="cover" />
@@ -144,120 +165,174 @@ export default function SignUp() {
                     <Feather name="user" size={32} color="white" />
                   )}
                 </View>
-                <View className="absolute bottom-0 right-0 bg-emerald-500 w-7 h-7 rounded-full items-center justify-center border-2 border-white dark:border-gray-900">
+                <View
+                  className={`absolute bottom-0 right-0 bg-emerald-500 w-7 h-7 rounded-full items-center justify-center border-2 ${
+                    isDark ? "border-gray-900" : "border-white"
+                  }`}
+                >
                   <Feather name="camera" size={14} color="white" />
                 </View>
               </TouchableOpacity>
-              <Text className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"} mt-1.5`}>
+              <Text className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}>
                 Tap to add profile photo
               </Text>
             </View>
 
-            <View>
-              <View className="mb-3">
-                <Text className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"} mb-1`}>
+            {/* Form */}
+            <View className="gap-4">
+              <View className="gap-1.5">
+                <Text
+                  className={`text-sm font-medium ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
                   Full Name
                 </Text>
-                <View className={`flex-row items-center ${isDark ? "bg-gray-800" : "bg-gray-50"} rounded-xl px-3 border ${isDark ? "border-gray-700" : "border-gray-200"}`}>
-                  <Feather name="user" size={18} color={isDark ? "#6B7280" : "#9CA3AF"} />
+                <View
+                  className={`flex-row items-center gap-2.5 ${
+                    isDark ? "bg-gray-800" : "bg-gray-50"
+                  } rounded-xl px-4 py-3.5 border ${fieldBorder("name")}`}
+                >
+                  <Feather name="user" size={18} color={mutedIcon} />
                   <TextInput
-                    className={`flex-1 py-3 ml-2 ${isDark ? "text-white" : "text-gray-900"}`}
+                    className={`flex-1 text-base ${isDark ? "text-white" : "text-gray-900"}`}
                     placeholder="Enter your full name"
-                    placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                    placeholderTextColor={mutedIcon}
                     value={name}
                     onChangeText={setName}
+                    onFocus={() => setFocusedField("name")}
+                    onBlur={() => setFocusedField(null)}
                   />
                 </View>
               </View>
 
-              <View className="mb-3">
-                <Text className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"} mb-1`}>
+              <View className="gap-1.5">
+                <Text
+                  className={`text-sm font-medium ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
                   Email Address
                 </Text>
-                <View className={`flex-row items-center ${isDark ? "bg-gray-800" : "bg-gray-50"} rounded-xl px-3 border ${isDark ? "border-gray-700" : "border-gray-200"}`}>
-                  <Feather name="mail" size={18} color={isDark ? "#6B7280" : "#9CA3AF"} />
+                <View
+                  className={`flex-row items-center gap-2.5 ${
+                    isDark ? "bg-gray-800" : "bg-gray-50"
+                  } rounded-xl px-4 py-3.5 border ${fieldBorder("email")}`}
+                >
+                  <Feather name="mail" size={18} color={mutedIcon} />
                   <TextInput
-                    className={`flex-1 py-3 ml-2 ${isDark ? "text-white" : "text-gray-900"}`}
+                    className={`flex-1 text-base ${isDark ? "text-white" : "text-gray-900"}`}
                     placeholder="name@example.com"
-                    placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                    placeholderTextColor={mutedIcon}
                     value={email}
                     onChangeText={setEmail}
                     autoCapitalize="none"
                     keyboardType="email-address"
+                    onFocus={() => setFocusedField("email")}
+                    onBlur={() => setFocusedField(null)}
                   />
                 </View>
               </View>
 
-              <View className="mb-3">
-                <Text className={`text-sm font-medium ${isDark ? "text-gray-300" : "text-gray-700"} mb-1`}>
+              <View className="gap-1.5">
+                <Text
+                  className={`text-sm font-medium ${
+                    isDark ? "text-gray-300" : "text-gray-700"
+                  }`}
+                >
                   Password
                 </Text>
-                <View className={`flex-row items-center ${isDark ? "bg-gray-800" : "bg-gray-50"} rounded-xl px-3 border ${isDark ? "border-gray-700" : "border-gray-200"}`}>
-                  <Feather name="lock" size={18} color={isDark ? "#6B7280" : "#9CA3AF"} />
+                <View
+                  className={`flex-row items-center gap-2.5 ${
+                    isDark ? "bg-gray-800" : "bg-gray-50"
+                  } rounded-xl px-4 py-3.5 border ${fieldBorder("password")}`}
+                >
+                  <Feather name="lock" size={18} color={mutedIcon} />
                   <TextInput
-                    className={`flex-1 py-3 ml-2 ${isDark ? "text-white" : "text-gray-900"}`}
+                    className={`flex-1 text-base ${isDark ? "text-white" : "text-gray-900"}`}
                     placeholder="Min 6 characters"
-                    placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                    placeholderTextColor={mutedIcon}
                     value={password}
                     onChangeText={setPassword}
                     secureTextEntry={!showPassword}
+                    onFocus={() => setFocusedField("password")}
+                    onBlur={() => setFocusedField(null)}
                   />
                   <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
                     <Feather
                       name={showPassword ? "eye-off" : "eye"}
                       size={18}
-                      color={isDark ? "#6B7280" : "#9CA3AF"}
+                      color={mutedIcon}
                     />
                   </TouchableOpacity>
                 </View>
               </View>
             </View>
 
-            <TouchableOpacity
-              onPress={handleRegister}
-              disabled={loading}
-              className="mt-5 bg-emerald-500 rounded-xl py-3.5 items-center"
-            >
-              {loading ? (
-                <ActivityIndicator color="white" />
-              ) : (
-                <Text className="text-white font-bold text-base">Create Account</Text>
-              )}
-            </TouchableOpacity>
+            {/* Submit */}
+            <View className="gap-6">
+              <TouchableOpacity
+                onPress={handleRegister}
+                disabled={loading}
+                activeOpacity={0.85}
+                className="bg-emerald-500 rounded-xl py-4 items-center shadow-sm"
+              >
+                {loading ? (
+                  <ActivityIndicator color="white" />
+                ) : (
+                  <Text className="text-white font-bold text-base">Create Account</Text>
+                )}
+              </TouchableOpacity>
 
-            <View className="flex-row items-center mt-5">
-              <View className={`flex-1 h-px ${isDark ? "bg-gray-700" : "bg-gray-200"}`} />
-              <Text className={`mx-3 text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                OR CONTINUE WITH
-              </Text>
-              <View className={`flex-1 h-px ${isDark ? "bg-gray-700" : "bg-gray-200"}`} />
+              <View className="flex-row items-center gap-3">
+                <View className={`flex-1 h-px ${isDark ? "bg-gray-700" : "bg-gray-200"}`} />
+                <Text
+                  className={`text-xs font-medium tracking-wider ${
+                    isDark ? "text-gray-400" : "text-gray-500"
+                  }`}
+                >
+                  OR CONTINUE WITH
+                </Text>
+                <View className={`flex-1 h-px ${isDark ? "bg-gray-700" : "bg-gray-200"}`} />
+              </View>
+
+              <View className="flex-row gap-3">
+                <TouchableOpacity
+                  activeOpacity={0.85}
+                  className={`flex-1 flex-row items-center justify-center gap-2 py-3.5 rounded-xl border ${
+                    isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
+                  }`}
+                >
+                  <Feather name="mail" size={18} color={subtleIcon} />
+                  <Text
+                    className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-700"}`}
+                  >
+                    Google
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  activeOpacity={0.85}
+                  className={`flex-1 flex-row items-center justify-center gap-2 py-3.5 rounded-xl border ${
+                    isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
+                  }`}
+                >
+                  <Feather name="user" size={18} color={subtleIcon} />
+                  <Text
+                    className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-700"}`}
+                  >
+                    Apple
+                  </Text>
+                </TouchableOpacity>
+              </View>
             </View>
 
-            <View className="flex-row gap-3 mt-4">
-              <TouchableOpacity
-                className={`flex-1 flex-row items-center justify-center py-2.5 rounded-xl border ${isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"}`}
-              >
-                <Feather name="mail" size={18} color={isDark ? "#9CA3AF" : "#64748B"} />
-                <Text className={`ml-2 text-sm font-medium ${isDark ? "text-white" : "text-gray-700"}`}>
-                  Google
-                </Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                className={`flex-1 flex-row items-center justify-center py-2.5 rounded-xl border ${isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"}`}
-              >
-                <Feather name="user" size={18} color={isDark ? "#9CA3AF" : "#64748B"} />
-                <Text className={`ml-2 text-sm font-medium ${isDark ? "text-white" : "text-gray-700"}`}>
-                  Apple
-                </Text>
-              </TouchableOpacity>
-            </View>
-
-            <View className="flex-row justify-center mt-5">
+            {/* Footer */}
+            <View className="flex-row justify-center items-center gap-1 mt-auto">
               <Text className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
-                Already have an account?{" "}
+                Already have an account?
               </Text>
               <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-                <Text className="text-emerald-500 font-semibold">Sign In</Text>
+                <Text className="text-emerald-500 font-semibold text-sm">Sign In</Text>
               </TouchableOpacity>
             </View>
           </View>

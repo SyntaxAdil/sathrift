@@ -18,6 +18,18 @@ export const auth = betterAuth({
       ? ["exp://", "exp://**", "exp://192.168.*.*:*/**"]
       : []),
   ],
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    },
+    apple: {
+      clientId: process.env.APPLE_CLIENT_ID!,
+      clientSecret: process.env.APPLE_CLIENT_SECRET!,
+      appBundleIdentifier: "com.yourcompany.yourapp",
+    },
+  },
+
   user: {
     additionalFields: {
       phoneNumber: {
