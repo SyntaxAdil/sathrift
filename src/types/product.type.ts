@@ -1,19 +1,19 @@
-import { ObjectId } from "mongodb";
-
+// types/product.type.ts
 export interface Product {
-  _id: string | ObjectId;
-  title:string,
+  _id?: string;
+  title: string;
   description: string;
   price: number;
   category: string;
-  condition: "New" | "Like New" | "Good" | "Fair" | "Used";
+  condition: 'New' | 'Like New' | 'Good' | 'Fair' | 'Used';
   images: string[];
   location: string;
-  sellerWhatsapp?: string;
   sellerId?: string;
   sellerName?: string;
   sellerImage?: string;
-  status?: "available" | "sold";
+  sellerWhatsapp?: string;
+  status: 'available' | 'sold';
+  views: number;
   createdAt?: Date;
   updatedAt?: Date;
 }

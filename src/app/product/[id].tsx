@@ -1,11 +1,12 @@
 // app/product/[id].tsx
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, StatusBar, FlatList, Dimensions, Alert } from 'react-native';
+import { View, Text, Image, ScrollView, TouchableOpacity, ActivityIndicator, StatusBar, FlatList, Dimensions, Alert, Linking } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useColorScheme } from 'react-native';
 import { authClient } from '../../lib/auth-client';
+import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
@@ -95,8 +96,16 @@ export default function ProductDetailScreen() {
     }
   };
 
-  const handleShare = async () => {
-    // Share logic
+  const handleWhatsApp = () => {
+    const phone = product?.sellerWhatsapp || '';
+    if (!phone) {
+      Alert.alert('No WhatsApp', 'Seller has not provided a WhatsApp number');
+      return;
+    }
+    const url = `https://wa.me/${phone.replace(/[^0-9]/g, '')}`;
+    Linking.openURL(url).catch(() => {
+      Alert.alert('Error', 'Unable to open WhatsApp');
+    });
   };
 
   const onScroll = (event: any) => {
@@ -154,10 +163,14 @@ export default function ProductDetailScreen() {
               )}
             />
             
-            <View className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+            <LinearGradient
+              colors={['rgba(0,0,0,0.7)', 'transparent', 'rgba(0,0,0,0.7)']}
+              locations={[0, 0.3, 1]}
+              className="absolute inset-0"
+            />
             
             <TouchableOpacity 
-              className={`absolute top-12 left-4 w-10 h-10 ${isDark ? 'bg-gray-800/90' : 'bg-white/90'} rounded-full items-center justify-center shadow-lg`}
+              className="absolute top-12 left-4 w-10 h-10 bg-white/90 dark:bg-gray-800/90 rounded-full items-center justify-center shadow-lg"
               onPress={() => router.back()}
             >
               <Feather name="arrow-left" size={22} color={isDark ? "#FFFFFF" : "#1F2937"} />
@@ -167,7 +180,7 @@ export default function ProductDetailScreen() {
               <TouchableOpacity 
                 onPress={handleWishlistToggle}
                 disabled={wishlistLoading}
-                className={`w-10 h-10 ${isDark ? 'bg-gray-800/90' : 'bg-white/90'} rounded-full items-center justify-center shadow-lg`}
+                className="w-10 h-10 bg-white/90 dark:bg-gray-800/90 rounded-full items-center justify-center shadow-lg"
               >
                 {wishlistLoading ? (
                   <ActivityIndicator size="small" color="#22C55E" />
@@ -181,8 +194,7 @@ export default function ProductDetailScreen() {
                 )}
               </TouchableOpacity>
               <TouchableOpacity 
-                onPress={handleShare}
-                className={`w-10 h-10 ${isDark ? 'bg-gray-800/90' : 'bg-white/90'} rounded-full items-center justify-center shadow-lg`}
+                className="w-10 h-10 bg-white/90 dark:bg-gray-800/90 rounded-full items-center justify-center shadow-lg"
               >
                 <Feather name="share-2" size={20} color={isDark ? "#FFFFFF" : "#1F2937"} />
               </TouchableOpacity>
@@ -204,20 +216,31 @@ export default function ProductDetailScreen() {
                 {product.condition?.toUpperCase() || 'AVAILABLE'}
               </Text>
             </View>
+
+            {product.status === 'sold' && (
+              <View className="absolute inset-0 bg-black/50 items-center justify-center">
+                <View className="bg-red-500 px-6 py-2 rounded-full transform -rotate-12">
+                  <Text className="text-white font-bold text-xl tracking-wider">SOLD</Text>
+                </View>
+              </View>
+            )}
           </View>
 
           <View className="px-5 pt-6 pb-8">
-            <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-              {product.title}
-            </Text>
-            <Text className="text-3xl font-bold text-emerald-500 mt-2">
-              ${product.price?.toFixed(2)}
-            </Text>
-
-            <View className="flex-row items-center mt-3">
-              <Feather name="map-pin" size={16} color="#94A3B8" />
-              <Text className={`text-sm ml-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
-                {product.location || 'Location not specified'}
+            <View className="flex-row justify-between items-start">
+              <View className="flex-1">
+                <Text className={`text-2xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                  {product.title}
+                </Text>
+                <View className="flex-row items-center mt-2">
+                  <Feather name="map-pin" size={16} color="#94A3B8" />
+                  <Text className={`text-sm ml-2 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                    {product.location || 'Location not specified'}
+                  </Text>
+                </View>
+              </View>
+              <Text className="text-3xl font-bold text-emerald-500">
+                ${product.price?.toFixed(2)}
               </Text>
             </View>
 
@@ -262,16 +285,21 @@ export default function ProductDetailScreen() {
               </View>
             </View>
 
-            <TouchableOpacity 
-              className="mt-8 bg-emerald-500 py-4 rounded-2xl active:opacity-80 "
-              onPress={() => {
-                const whatsapp = product.sellerWhatsapp || '1234567890';
-              }}
-            >
-              <Text className="text-white text-center font-bold text-base tracking-wide">
-                Contact on WhatsApp
-              </Text>
-            </TouchableOpacity>
+            {product.status !== 'sold' ? (
+              <TouchableOpacity 
+                onPress={handleWhatsApp}
+                className="mt-8 bg-emerald-500 py-4 rounded-2xl active:opacity-80  flex-row items-center justify-center"
+              >
+                <Feather name="message-circle" size={20} color="white" />
+                <Text className="text-white text-center font-bold text-base ml-2">
+                  Contact on WhatsApp
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <View className="mt-8 bg-gray-400 py-4 rounded-2xl items-center opacity-70">
+                <Text className="text-white font-bold text-base">Item Sold</Text>
+              </View>
+            )}
           </View>
         </ScrollView>
       </View>

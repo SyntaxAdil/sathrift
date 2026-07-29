@@ -1,5 +1,5 @@
 // app/(tabs)/sell/index.tsx
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -17,7 +17,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as FileSystem from "expo-file-system/legacy";
 import { useColorScheme } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
 import ImagePickerBox from "../../components/image-picker-box";
 import { authClient } from "../../lib/auth-client";
 import type { Product } from "../../types/product.type";
@@ -56,12 +55,19 @@ const SellScreen = () => {
   const [condition, setCondition] = useState<Product["condition"]>("New");
   const [price, setPrice] = useState("");
   const [location, setLocation] = useState("");
+  const [whatsapp, setWhatsapp] = useState("");
 
   const [categoryModalOpen, setCategoryModalOpen] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const categoryFieldRef = useRef<View>(null);
   const [dropdownPos, setDropdownPos] = useState({ x: 0, y: 0, width: 0 });
+
+  useEffect(() => {
+    if (session?.user && (session.user as any)?.phoneNumber) {
+      setWhatsapp((session.user as any).phoneNumber);
+    }
+  }, [session]);
 
   const openCategoryDropdown = () => {
     categoryFieldRef.current?.measureInWindow((x, y, width, height) => {
@@ -84,7 +90,7 @@ const SellScreen = () => {
             parameters: {
               name: "image.jpg",
             },
-          }
+          },
         );
 
         if (uploadResult.status < 200 || uploadResult.status >= 300) {
@@ -94,7 +100,7 @@ const SellScreen = () => {
         const data = JSON.parse(uploadResult.body);
         if (!data.success) throw new Error("Image upload failed");
         return data.data.url as string;
-      })
+      }),
     );
   };
 
@@ -105,6 +111,8 @@ const SellScreen = () => {
     if (!description.trim()) return "Description is required";
     if (!price || Number(price) <= 0) return "Enter a valid price";
     if (!location.trim()) return "Location is required";
+    if (!whatsapp.trim())
+      return "WhatsApp number is required for buyers to contact you";
     return null;
   };
 
@@ -127,6 +135,7 @@ const SellScreen = () => {
         sellerId: session?.user?.id,
         sellerName: session?.user?.name,
         sellerImage: session?.user?.image ?? undefined,
+        sellerWhatsapp: whatsapp,
       };
 
       const res = await fetch(`${API_URL}/api/product`, {
@@ -150,13 +159,17 @@ const SellScreen = () => {
   if (!session) {
     return (
       <View className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}>
-        <Header/>
+        <Header />
         <View className="flex-1 items-center justify-center p-6">
           <Ionicons name="cloud-upload-outline" size={64} color="#94A3B8" />
-          <Text className={`text-lg font-semibold mt-4 ${isDark ? "text-white" : "text-gray-900"}`}>
+          <Text
+            className={`text-lg font-semibold mt-4 ${isDark ? "text-white" : "text-gray-900"}`}
+          >
             Sign In Required
           </Text>
-          <Text className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"} mt-1 text-center`}>
+          <Text
+            className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"} mt-1 text-center`}
+          >
             Please sign in to sell your items
           </Text>
           <TouchableOpacity
@@ -182,22 +195,30 @@ const SellScreen = () => {
         contentContainerStyle={{ paddingBottom: 40 }}
       >
         <View className="px-5 pt-4 pb-10">
-          <Text className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+          <Text
+            className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}
+          >
             List Your Item
           </Text>
-          <Text className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"} mt-1`}>
+          <Text
+            className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"} mt-1`}
+          >
             Give your pre-loved items a second life
           </Text>
 
           <View className="mt-6">
-            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+            <Text
+              className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}
+            >
               Photos
             </Text>
             <ImagePickerBox onImagesChange={setImages} />
           </View>
 
           <View className="mt-5">
-            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+            <Text
+              className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}
+            >
               Title
             </Text>
             <TextInput
@@ -210,7 +231,9 @@ const SellScreen = () => {
           </View>
 
           <View className="mt-5">
-            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+            <Text
+              className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}
+            >
               Category
             </Text>
             <View ref={categoryFieldRef} collapsable={false}>
@@ -218,7 +241,17 @@ const SellScreen = () => {
                 onPress={openCategoryDropdown}
                 className={`flex-row justify-between items-center ${isDark ? "bg-gray-800" : "bg-white"} p-4 rounded-2xl shadow-sm`}
               >
-                <Text className={category ? (isDark ? "text-white" : "text-gray-900") : isDark ? "text-gray-500" : "text-gray-400"}>
+                <Text
+                  className={
+                    category
+                      ? isDark
+                        ? "text-white"
+                        : "text-gray-900"
+                      : isDark
+                        ? "text-gray-500"
+                        : "text-gray-400"
+                  }
+                >
                   {category || "Select Category"}
                 </Text>
                 <Ionicons
@@ -266,7 +299,9 @@ const SellScreen = () => {
                           className={
                             active
                               ? "text-emerald-500 font-semibold"
-                              : isDark ? "text-white" : "text-gray-900"
+                              : isDark
+                                ? "text-white"
+                                : "text-gray-900"
                           }
                         >
                           {c}
@@ -280,7 +315,9 @@ const SellScreen = () => {
           </Modal>
 
           <View className="mt-5">
-            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+            <Text
+              className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}
+            >
               Description
             </Text>
             <TextInput
@@ -297,10 +334,14 @@ const SellScreen = () => {
           </View>
 
           <View className="mt-5">
-            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+            <Text
+              className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}
+            >
               Condition
             </Text>
-            <View className={`flex-row ${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl p-1.5 shadow-sm`}>
+            <View
+              className={`flex-row ${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl p-1.5 shadow-sm`}
+            >
               {CONDITIONS.map((c) => {
                 const active = condition === c.value;
                 return (
@@ -313,7 +354,9 @@ const SellScreen = () => {
                       className={
                         active
                           ? "text-emerald-500 font-semibold"
-                          : isDark ? "text-gray-400" : "text-gray-500"
+                          : isDark
+                            ? "text-gray-400"
+                            : "text-gray-500"
                       }
                     >
                       {c.label}
@@ -326,7 +369,9 @@ const SellScreen = () => {
 
           <View className="flex-row gap-4 mt-5">
             <View className="flex-1">
-              <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+              <Text
+                className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}
+              >
                 Price ($)
               </Text>
               <TextInput
@@ -339,11 +384,20 @@ const SellScreen = () => {
               />
             </View>
             <View className="flex-1">
-              <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+              <Text
+                className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}
+              >
                 Location
               </Text>
-              <View className={`flex-row items-center ${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl shadow-sm`}>
-                <Ionicons name="location-outline" size={20} color={isDark ? "#6B7280" : "#9CA3AF"} style={{ marginLeft: 14 }} />
+              <View
+                className={`flex-row items-center ${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl shadow-sm`}
+              >
+                <Ionicons
+                  name="location-outline"
+                  size={20}
+                  color={isDark ? "#6B7280" : "#9CA3AF"}
+                  style={{ marginLeft: 14 }}
+                />
                 <TextInput
                   value={location}
                   onChangeText={setLocation}
@@ -355,15 +409,48 @@ const SellScreen = () => {
             </View>
           </View>
 
+          <View className="mt-5">
+            <Text
+              className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}
+            >
+              WhatsApp Number
+            </Text>
+            <View
+              className={`flex-row items-center ${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl shadow-sm`}
+            >
+              <Ionicons
+                name="logo-whatsapp"
+                size={20}
+                color="#25D366"
+                style={{ marginLeft: 14 }}
+              />
+              <TextInput
+                value={whatsapp}
+                onChangeText={setWhatsapp}
+                placeholder="+880 1XXX-XXXXXX"
+                placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                keyboardType="phone-pad"
+                className={`flex-1 ${isDark ? "text-white" : "text-gray-900"} p-4`}
+              />
+            </View>
+            <Text
+              className={`text-xs ${isDark ? "text-gray-500" : "text-gray-400"} mt-1`}
+            >
+              Buyers will contact you via this WhatsApp number
+            </Text>
+          </View>
+
           <Pressable
             onPress={handlePublish}
             disabled={submitting}
-            className="mt-8 bg-emerald-500 rounded-2xl py-4 items-center "
+            className="mt-8 bg-emerald-500 rounded-2xl py-4 items-center shadow-lg shadow-emerald-500/30"
           >
             {submitting ? (
               <ActivityIndicator color="white" />
             ) : (
-              <Text className="text-white font-bold text-base">Publish Item</Text>
+              <Text className="text-white font-bold text-base">
+                Publish Item
+              </Text>
             )}
           </Pressable>
         </View>

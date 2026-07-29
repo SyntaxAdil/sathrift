@@ -8,10 +8,12 @@ import * as ImagePicker from 'expo-image-picker';
 interface EditProfileModalProps {
   visible: boolean;
   onClose: () => void;
-  onSave: (name: string, image: string) => void;
+  onSave: (name: string, image: string, university: string, phoneNumber: string) => void;
   initialName: string;
   initialEmail: string;
   initialImage?: string;
+  initialUniversity?: string;
+  initialPhoneNumber?: string;
   loading: boolean;
 }
 
@@ -22,12 +24,16 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   initialName,
   initialEmail,
   initialImage,
+  initialUniversity = '',
+  initialPhoneNumber = '',
   loading
 }) => {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const [name, setName] = useState(initialName);
   const [image, setImage] = useState(initialImage || '');
+  const [university, setUniversity] = useState(initialUniversity);
+  const [phoneNumber, setPhoneNumber] = useState(initialPhoneNumber);
 
   const pickImage = async () => {
     const result = await ImagePicker.launchImageLibraryAsync({
@@ -43,7 +49,7 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
   };
 
   const handleSave = () => {
-    onSave(name, image);
+    onSave(name, image, university, phoneNumber);
   };
 
   return (
@@ -91,6 +97,33 @@ const EditProfileModal: React.FC<EditProfileModalProps> = ({
                 value={name}
                 onChangeText={setName}
                 placeholder="Enter your name"
+                placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
+              />
+            </View>
+
+            <View className="mb-4">
+              <Text className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                WhatsApp Number
+              </Text>
+              <TextInput
+                className={`${isDark ? 'bg-gray-800 text-white' : 'bg-gray-50 text-gray-900'} p-4 rounded-xl`}
+                value={phoneNumber}
+                onChangeText={setPhoneNumber}
+                placeholder="+880 1XXX-XXXXXX"
+                placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
+                keyboardType="phone-pad"
+              />
+            </View>
+
+            <View className="mb-4">
+              <Text className={`text-sm font-medium ${isDark ? 'text-gray-300' : 'text-gray-700'} mb-2`}>
+                University / College
+              </Text>
+              <TextInput
+                className={`${isDark ? 'bg-gray-800 text-white' : 'bg-gray-50 text-gray-900'} p-4 rounded-xl`}
+                value={university}
+                onChangeText={setUniversity}
+                placeholder="Enter your university or college name"
                 placeholderTextColor={isDark ? '#6B7280' : '#9CA3AF'}
               />
             </View>

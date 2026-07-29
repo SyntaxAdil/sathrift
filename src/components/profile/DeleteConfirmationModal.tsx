@@ -19,8 +19,8 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
   const isDark = colorScheme === 'dark';
 
   return (
-    <Modal visible={visible} transparent animationType="fade">
-      <View className="flex-1 bg-black/50 items-center justify-center p-6">
+    <Modal visible={visible} transparent animationType="fade" >
+      <View className="flex-1 bg-black/50 items-center justify-center p-6 ">
         <View className={`${isDark ? 'bg-gray-900' : 'bg-white'} rounded-2xl p-6 w-full max-w-sm`}>
           <View className="items-center">
             <View className="w-16 h-16 bg-red-100 dark:bg-red-900/30 rounded-full items-center justify-center mb-4">
@@ -36,7 +36,7 @@ const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = ({
           <View className="flex-row space-x-3 mt-6">
             <TouchableOpacity 
               onPress={onClose} 
-              className="flex-1 py-3 rounded-xl bg-gray-200 dark:bg-gray-700"
+              className="flex-1 py-3 rounded-xl bg-gray-200 dark:bg-gray-700 mr-6"
             >
               <Text className={`text-center font-semibold ${isDark ? 'text-white' : 'text-gray-700'}`}>
                 Cancel

@@ -67,10 +67,10 @@ const Header: React.FC<HeaderProps> = ({
             )}
           </TouchableOpacity>
         ) : (
-          <View className="flex-row items-center space-x-2">
+          <View className="flex-row items-center gap-2">
             <TouchableOpacity 
               onPress={() => router.push('/(auth)/login')}
-              className="px-4 py-2 rounded-full bg-emerald-500"
+              className="px-4 py-2 rounded-full bg-emerald-500 "
             >
               <Text className="text-white text-sm font-semibold">Sign In</Text>
             </TouchableOpacity>

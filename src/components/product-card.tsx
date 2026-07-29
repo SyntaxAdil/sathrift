@@ -1,5 +1,5 @@
 // components/product-card.tsx
-import React from 'react';
+import React, { useState } from 'react';
 import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { Feather } from '@expo/vector-icons';
 
@@ -13,9 +13,8 @@ interface ProductCardProps {
   condition: string;
   images: string[];
   location?: string;
-  isWishlisted?: boolean;
+  status?: string;
   onPress: () => void;
-  onWishlistPress: () => void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({
@@ -24,10 +23,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
   condition,
   images,
   location,
-  isWishlisted = false,
+  status ,
   onPress,
-  
 }) => {
+  const [imageError, setImageError] = useState(false);
+  
   const conditionColors: Record<string, string> = {
     'New': '#22C55E',
     'Like New': '#3B82F6',
@@ -35,6 +35,8 @@ const ProductCard: React.FC<ProductCardProps> = ({
     'Fair': '#F97316',
     'Used': '#94A3B8',
   };
+
+  const hasValidImage = images && Array.isArray(images) && images.length > 0 && images[0] && !imageError;
 
   return (
     <TouchableOpacity
@@ -44,12 +46,17 @@ const ProductCard: React.FC<ProductCardProps> = ({
       style={{ width: CARD_WIDTH }}
     >
       <View className="bg-white dark:bg-gray-800 rounded-2xl overflow-hidden shadow-sm">
-        <View className="relative h-44 bg-gray-100 dark:bg-gray-700">
-          {images?.[0] ? (
-            <Image source={{ uri: images[0] }} className="w-full h-full" resizeMode="cover" />
+        <View className="relative h-44 bg-gray-200 dark:bg-gray-700">
+          {hasValidImage ? (
+            <Image 
+              source={{ uri: images[0] }} 
+              className="w-full h-full" 
+              resizeMode="cover"
+              onError={() => setImageError(true)}
+            />
           ) : (
-            <View className="w-full h-full items-center justify-center">
-              <Feather name="image" size={32} color="#CBD5E1" />
+            <View className="w-full h-full items-center justify-center bg-gray-200 dark:bg-gray-700">
+              <Feather name="image" size={40} color="#9CA3AF" />
             </View>
           )}
 
@@ -62,18 +69,24 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </Text>
           </View>
 
-        
+          {status === 'sold' && (
+            <View className="absolute inset-0 bg-black/50 items-center justify-center">
+              <View className="bg-red-500 px-4 py-1.5 rounded-full transform -rotate-12">
+                <Text className="text-white font-bold text-sm tracking-wider">SOLD</Text>
+              </View>
+            </View>
+          )}
 
           <View className="absolute bottom-2 left-2 bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-sm">
             <Text className="text-white font-bold text-sm">
-              ${price?.toFixed(2)}
+              ${price?.toFixed(2) || '0.00'}
             </Text>
           </View>
         </View>
 
         <View className="p-3">
           <Text className="text-sm font-semibold text-gray-900 dark:text-white mb-1" numberOfLines={2}>
-            {title}
+            {title || 'Untitled'}
           </Text>
           {location && (
             <View className="flex-row items-center">
@@ -83,6 +96,11 @@ const ProductCard: React.FC<ProductCardProps> = ({
               </Text>
             </View>
           )}
+          <View className={`mt-2 px-4 py-0.5 rounded-full self-start  ${status === 'available' ? 'bg-green-100 dark:bg-green-900/30' : 'bg-red-100 dark:bg-red-900/30'}`}>
+            <Text className={`text-xs ${status === 'available' ? 'text-green-600 dark:text-green-400' : 'text-red-600 dark:text-red-400'} capitalize`}>
+              {status}
+            </Text>
+          </View>
         </View>
       </View>
     </TouchableOpacity>

@@ -17,9 +17,9 @@ export default function RootLayout() {
           }}
         />
         <Stack.Screen
-          name="profile/index"
+          name="profile"
           options={{
-            headerShown: false,
+            headerShown: false, // profile এর header বন্ধ
           }}
         />
         <Stack.Screen

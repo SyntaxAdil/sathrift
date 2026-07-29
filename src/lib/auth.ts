@@ -18,4 +18,20 @@ export const auth = betterAuth({
       ? ["exp://", "exp://**", "exp://192.168.*.*:*/**"]
       : []),
   ],
+  user: {
+    additionalFields: {
+      phoneNumber: {
+        type: "string",
+        required: false,
+        unique: false,
+        defaultValue: "",
+      },
+      university: {
+        type: "string",
+        required: false,
+        unique: false,
+        defaultValue: "",
+      },
+    },
+  },
 });
