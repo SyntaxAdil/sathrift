@@ -4,8 +4,8 @@ import { expo } from "@better-auth/expo";
 import { MongoClient } from "mongodb";
 
 const client = new MongoClient(process.env.DATABASE_URL!);
-console.log(process.env.DATABASE_URL,"url")
-const db = client.db();
+
+const db = client.db("sathrift");
 
 export const auth = betterAuth({
   database: mongodbAdapter(db, { client }),

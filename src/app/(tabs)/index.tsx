@@ -1,26 +1,138 @@
-import { View, Text, Button } from "react-native";
-import React from "react";
-import { router } from "expo-router";
-import { authClient } from "../../lib/auth-client";
+// app/(tabs)/index.tsx
+import React, { useState, useEffect } from 'react';
+import { View, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
+import { useRouter } from 'expo-router';
+import axios from 'axios';
+import Header from '../../components/header';
+import HeroSlider from '../../components/hero-slider';
+import CategoryGrid from '../../components/category-grid';
+import SectionHeader from '../../components/section-header';
+import ProductGrid from '../../components/product-grid';
+import EmptyState from '../../components/empty-state';
 
-const HomeScreen = () => {
-  const {data:session}=authClient.useSession()
-  const user=session?.user
+interface Product {
+  _id: string;
+  title: string;
+  price: number;
+  condition: string;
+  images: string[];
+  location: string;
+}
+
+export default function HomeScreen() {
+  const router = useRouter();
+  const [products, setProducts] = useState<Product[]>([]);
+  const [featured, setFeatured] = useState<Product[]>([]);
+  const [recent, setRecent] = useState<Product[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const API_URL = process.env.EXPO_PUBLIC_API_URL || 'http://localhost:5000';
+
+  const fetchProducts = async () => {
+    try {
+      const response = await axios.get(`${API_URL}/api/product`);
+      if (response.data.success) {
+        const all = response.data.data;
+        setProducts(all);
+        setFeatured(all.slice(0, 4));
+        setRecent(all.slice(4, 10));
+      }
+    } catch (error) {
+      console.error('Error:', error);
+    } finally {
+      setLoading(false);
+      setRefreshing(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const onRefresh = () => {
+    setRefreshing(true);
+    fetchProducts();
+  };
+
+  const handleProductPress = (id: string) => {
+    router.push({
+      pathname: '/product/[id]',
+      params: { id }
+    });
+  };
+
+  const handleWishlistPress = (id: string) => {
+    console.log('Wishlist:', id);
+  };
+
+  const handleCategoryPress = (category: string) => {
+    router.push(`/explore?category=${category}` as any);
+  };
+
+  if (loading) {
+    return (
+      <View className="flex-1 bg-gray-50 dark:bg-gray-900 items-center justify-center">
+        <ActivityIndicator size="large" color="#22C55E" />
+      </View>
+    );
+  }
 
   return (
-    <View className="mt-20 px-4">
-      <Text className="text-6xl tracking-tighter font-bold">
-        SA<Text className="text-emerald-400">Thirft</Text>
-      </Text>
-      <Text className="text-2xl mt-2 text-slate-300 font-light">
-        Let's thrift with the trend
-      </Text>
-      <Button title="SignIn" onPress={()=>router.push("/register")} className="mb-4" ></Button>
-      {!user ? <Button title="SignIn" onPress={()=>router.push("/login")}  ></Button> :
-      <Button title="Logout" onPress={async()=>await authClient.signOut()}  ></Button>}
+    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+      <Header />
       
+      <FlatList
+        data={[]}
+        renderItem={null}
+        ListHeaderComponent={
+          <View>
+            <HeroSlider products={featured} />
+            <CategoryGrid onCategoryPress={handleCategoryPress} />
+            
+            {featured.length > 0 && (
+              <>
+                <SectionHeader 
+                  title="Featured" 
+                  onSeeAll={() => router.push('/explore' as any)}
+                />
+                <ProductGrid 
+                  products={featured} 
+                  onProductPress={handleProductPress}
+                  onWishlistPress={handleWishlistPress}
+                />
+              </>
+            )}
+
+            {recent.length > 0 && (
+              <>
+                <SectionHeader 
+                  title="Recent Listings" 
+                  onSeeAll={() => router.push('/explore' as any)}
+                />
+                <ProductGrid 
+                  products={recent} 
+                  onProductPress={handleProductPress}
+                  onWishlistPress={handleWishlistPress}
+                />
+              </>
+            )}
+
+            {products.length === 0 && (
+              <EmptyState 
+                title="No Products Found" 
+                description="Be the first to list an item!" 
+              />
+            )}
+            
+            <View className="h-4" />
+          </View>
+        }
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} colors={['#22C55E']} />
+        }
+        showsVerticalScrollIndicator={false}
+      />
     </View>
   );
-};
-
-export default HomeScreen;
+}
