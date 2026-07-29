@@ -52,9 +52,8 @@ const StudentPicks: React.FC<StudentPicksProps> = ({
               condition={item.condition}
               images={item.images}
               location={item.location}
-              isWishlisted={false}
+              status={item.status}
               onPress={() => onProductPress(item._id)}
-              onWishlistPress={() => onWishlistPress(item._id)}
             />
           </View>
         ))}

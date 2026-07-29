@@ -35,7 +35,7 @@ const RecommendedSection: React.FC<RecommendedSectionProps> = ({
         </View>
         <TouchableOpacity 
           onPress={() => router.push('/explore' as any)}
-          className="flex-row items-center"
+          className="flex-row items-center "
         >
           <Text className="text-emerald-500 text-sm font-medium mr-1">See All</Text>
         </TouchableOpacity>
@@ -48,7 +48,7 @@ const RecommendedSection: React.FC<RecommendedSectionProps> = ({
         keyExtractor={(item) => item._id}
         contentContainerStyle={{ paddingHorizontal: 16 }}
         renderItem={({ item }) => (
-          <View className="mr-3" style={{ width: 150 }}>
+          <View className="mr-15" style={{ width: 150 }}>
             <ProductCard
               id={item._id}
               title={item.title}
@@ -56,9 +56,9 @@ const RecommendedSection: React.FC<RecommendedSectionProps> = ({
               condition={item.condition}
               images={item.images}
               location={item.location}
-              isWishlisted={false}
+              
               onPress={() => onProductPress(item._id)}
-              onWishlistPress={() => onWishlistPress(item._id)}
+              status={item.status}
             />
           </View>
         )}

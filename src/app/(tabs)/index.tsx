@@ -96,7 +96,7 @@ export default function HomeScreen() {
           <View>
             <HeroSlider products={featured} />
             
-            <CategoryGrid onCategoryPress={handleCategoryPress} />
+            <CategoryGrid />
             
             {featured.length > 0 && (
               <>

@@ -1,62 +1,108 @@
 // components/category-grid.tsx
-import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
-import { Feather } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
+import React from "react";
+import { View, Text, ImageBackground, StyleSheet } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 
-interface CategoryGridProps {
-  onCategoryPress?: (category: string) => void;
+interface CategoryItem {
+  id: string;
+  name: string;
+  subtitle: string;
+  image: string;
 }
 
-const categories = [
-  { id: '1', name: 'Electronics', icon: 'smartphone', color: '#22C55E' },
-  { id: '2', name: 'Fashion', icon: 'shopping-bag', color: '#3B82F6' },
-  { id: '3', name: 'Books', icon: 'book', color: '#8B5CF6' },
-  { id: '4', name: 'Home', icon: 'home', color: '#F59E0B' },
-  { id: '5', name: 'Sports', icon: 'activity', color: '#EF4444' },
-  { id: '6', name: 'Vehicles', icon: 'truck', color: '#06B6D4' },
-  { id: '7', name: 'Accessories', icon: 'watch', color: '#EC4899' },
-  { id: '8', name: 'Other', icon: 'more-horizontal', color: '#6B7280' },
+const categories: CategoryItem[] = [
+  {
+    id: "1",
+    name: "Books & Notes",
+    subtitle: "Secondhand & New",
+    image: "https://loremflickr.com/500/600/textbook?lock=101",
+  },
+  {
+    id: "2",
+    name: "Electronics",
+    subtitle: "Laptops, Phones & More",
+    image: "https://loremflickr.com/500/600/laptop?lock=102",
+  },
+  {
+    id: "3",
+    name: "Hostel Essentials",
+    subtitle: "Everything for Your Room",
+    image: "https://loremflickr.com/1000/450/dormroom?lock=103",
+  },
 ];
 
-const CategoryGrid: React.FC<CategoryGridProps> = ({ onCategoryPress }) => {
-  const router = useRouter();
+const CategoryCard = ({ item, style }: { item: CategoryItem; style?: any }) => (
+  <ImageBackground
+    source={{ uri: item.image }}
+    style={[
+      {
+        overflow: "hidden",
+        borderRadius: 20,
+        justifyContent: "flex-end",
+      },
+      style,
+    ]}
+    imageStyle={{ borderRadius: 20 }}
+  >
+    <LinearGradient
+      colors={["transparent", "rgba(0,0,0,0.85)"]}
+      start={{ x: 0.5, y: 0 }}
+      end={{ x: 0.5, y: 1 }}
+      style={{
+        position: "absolute",
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        borderRadius: 20,
+      }}
+    />
 
-  const handlePress = (categoryName: string) => {
-    if (onCategoryPress) {
-      onCategoryPress(categoryName);
-    }
-    router.push({
-      pathname: '/explore',
-      params: { category: categoryName }
-    });
-  };
+    <View
+      style={{
+        padding: 14,
+        zIndex: 1,
+      }}
+    >
+      <Text
+        style={{
+          color: "#fff",
+          fontSize: 16,
+          fontWeight: "700",
+        }}
+      >
+        {item.name}
+      </Text>
 
+      <Text
+        style={{
+          color: "rgba(255,255,255,0.9)",
+          fontSize: 12,
+          marginTop: 2,
+        }}
+      >
+        {item.subtitle}
+      </Text>
+    </View>
+  </ImageBackground>
+);
+
+const CategoryGrid: React.FC = () => {
   return (
     <View className="mb-6 px-4">
       <Text className="text-lg font-bold text-gray-900 dark:text-white mb-4">
-        Categories
+        Explore Categories
       </Text>
-      <View className="flex-row flex-wrap justify-between">
-        {categories.map((category) => (
-          <TouchableOpacity
-            key={category.id}
-            className="w-[23%] items-center mb-4"
-            onPress={() => handlePress(category.name)}
-            activeOpacity={0.7}
-          >
-            <View 
-              className="w-14 h-14 rounded-2xl items-center justify-center mb-2"
-              style={{ backgroundColor: `${category.color}15` }}
-            >
-              <Feather name={category.icon as any} size={24} color={category.color} />
-            </View>
-            <Text className="text-xs text-gray-600 dark:text-gray-400 text-center">
-              {category.name}
-            </Text>
-          </TouchableOpacity>
-        ))}
+
+      <View style={{ flexDirection: "row", gap: 12, marginBottom: 12 }}>
+        <CategoryCard item={categories[0]} style={{ flex: 1, height: 150 }} />
+        <CategoryCard item={categories[1]} style={{ flex: 1, height: 150 }} />
       </View>
+
+      <CategoryCard
+        item={categories[2]}
+        style={{ width: "100%", height: 130 }}
+      />
     </View>
   );
 };
