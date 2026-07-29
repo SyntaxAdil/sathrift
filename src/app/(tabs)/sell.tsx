@@ -443,7 +443,7 @@ const SellScreen = () => {
           <Pressable
             onPress={handlePublish}
             disabled={submitting}
-            className="mt-8 bg-emerald-500 rounded-2xl py-4 items-center shadow-lg shadow-emerald-500/30"
+            className="mt-8 bg-emerald-500 rounded-2xl py-4 items-center "
           >
             {submitting ? (
               <ActivityIndicator color="white" />

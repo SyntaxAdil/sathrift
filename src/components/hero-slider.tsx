@@ -4,23 +4,28 @@ import { View, Text, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
 import Swiper from 'react-native-swiper';
 import { useColorScheme } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
 
 const { width } = Dimensions.get('window');
 
 interface HeroSliderProps {
-  products: any[];
+  products?: any[];
 }
+
+const BANNERS = [
+  require('../../assets/images/banner1.png'),
+  require('../../assets/images/banner2.png'),
+  require('../../assets/images/banner3.png'),
+  require('../../assets/images/banner4.png'),
+  require('../../assets/images/banner5.png'),
+];
 
 const HeroSlider: React.FC<HeroSliderProps> = ({ products }) => {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
-  if (!products || products.length === 0) return null;
-
   return (
-    <View className="mx-4 mb-6 mt-2 " style={{ height: 210 }}>
+    <View className="mx-4 mb-6 mt-2" style={{ height: 210 }}>
       <Swiper
         style={{ height: 210 }}
         showsButtons={false}
@@ -32,50 +37,18 @@ const HeroSlider: React.FC<HeroSliderProps> = ({ products }) => {
         activeDotStyle={{ width: 20, height: 6, borderRadius: 3 }}
         paginationStyle={{ bottom: 12 }}
       >
-        {products.slice(0, 5).map((item) => (
+        {BANNERS.map((banner, index) => (
           <TouchableOpacity
-            key={item._id}
+            key={index}
             className="relative rounded-xl overflow-hidden"
             style={{ width: width - 32, height: 200 }}
-            onPress={() => router.push({
-              pathname: '/product/[id]',
-              params: { id: item._id }
-            })}
             activeOpacity={0.95}
           >
             <Image
-              source={{ uri: item.images?.[0] || 'https://via.placeholder.com/400x300' }}
+              source={banner}
               className="w-full h-full"
               resizeMode="cover"
             />
-            
-            <LinearGradient
-              colors={['transparent', 'rgba(0,0,0,0.8)']}
-              locations={[0.5, 1]}
-              className="absolute inset-0"
-            />
-            
-            <View className="absolute top-3 left-3 bg-emerald-500 px-2.5 py-1 rounded-full">
-              <Text className="text-white text-[10px] font-bold tracking-wide">
-                {item.condition?.toUpperCase() || 'FEATURED'}
-              </Text>
-            </View>
-            
-            <View className="absolute bottom-0 left-0 right-0 p-4">
-              <Text className="text-white text-base font-bold" numberOfLines={1}>
-                {item.title}
-              </Text>
-              <View className="flex-row items-center justify-between mt-1.5">
-                <Text className="text-emerald-400 text-xl font-bold">
-                  ${item.price?.toFixed(2)}
-                </Text>
-                <View className="bg-white/10 px-3 py-1 rounded-full border border-white/10">
-                  <Text className="text-white/70 text-[10px] font-medium">
-                    {item.location || 'Local'}
-                  </Text>
-                </View>
-              </View>
-            </View>
           </TouchableOpacity>
         ))}
       </Swiper>
