@@ -3,12 +3,17 @@ import React, { useState, useEffect } from 'react';
 import { View, FlatList, RefreshControl, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import axios from 'axios';
+import { useColorScheme } from 'react-native';
 import Header from '../../components/header';
 import HeroSlider from '../../components/hero-slider';
 import CategoryGrid from '../../components/category-grid';
 import SectionHeader from '../../components/section-header';
 import ProductGrid from '../../components/product-grid';
+
+import StudentPicks from '../../components/student-picks';
+import ExploreMore from '../../components/explore-more';
 import EmptyState from '../../components/empty-state';
+import RecommendedSection from '../../components/recomended-section';
 
 interface Product {
   _id: string;
@@ -21,6 +26,8 @@ interface Product {
 
 export default function HomeScreen() {
   const router = useRouter();
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === 'dark';
   const [products, setProducts] = useState<Product[]>([]);
   const [featured, setFeatured] = useState<Product[]>([]);
   const [recent, setRecent] = useState<Product[]>([]);
@@ -72,14 +79,14 @@ export default function HomeScreen() {
 
   if (loading) {
     return (
-      <View className="flex-1 bg-gray-50 dark:bg-gray-900 items-center justify-center">
+      <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'} items-center justify-center`}>
         <ActivityIndicator size="large" color="#22C55E" />
       </View>
     );
   }
 
   return (
-    <View className="flex-1 bg-gray-50 dark:bg-gray-900">
+    <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <Header />
       
       <FlatList
@@ -88,6 +95,7 @@ export default function HomeScreen() {
         ListHeaderComponent={
           <View>
             <HeroSlider products={featured} />
+            
             <CategoryGrid onCategoryPress={handleCategoryPress} />
             
             {featured.length > 0 && (
@@ -105,18 +113,25 @@ export default function HomeScreen() {
             )}
 
             {recent.length > 0 && (
-              <>
-                <SectionHeader 
-                  title="Recent Listings" 
-                  onSeeAll={() => router.push('/explore' as any)}
-                />
-                <ProductGrid 
-                  products={recent} 
-                  onProductPress={handleProductPress}
-                  onWishlistPress={handleWishlistPress}
-                />
-              </>
+              <RecommendedSection 
+                products={recent}
+                onProductPress={handleProductPress}
+                onWishlistPress={handleWishlistPress}
+              />
             )}
+
+            {products.length > 6 && (
+              <StudentPicks 
+                products={products.slice(6, 12)}
+                onProductPress={handleProductPress}
+                onWishlistPress={handleWishlistPress}
+              />
+            )}
+
+            <ExploreMore 
+              title="Discover More"
+              subtitle="Find amazing deals from fellow students"
+            />
 
             {products.length === 0 && (
               <EmptyState 

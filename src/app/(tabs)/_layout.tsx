@@ -1,15 +1,14 @@
-// app/(tabs)/_layout.tsx
 import { NativeTabs } from "expo-router/unstable-native-tabs";
-import { useColorScheme } from 'nativewind';
+import { useColorScheme } from 'react-native';
 
 export default function TabsLayout() {
-  const { colorScheme } = useColorScheme();
+  const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
   return (
     <NativeTabs
       backgroundColor={isDark ? "#1F2937" : "#FFFFFF"}
-      iconColor={{ default: isDark ? "#94A3B8" : "#94A3B8", selected: "#22C55E" }}
+      iconColor={{ default: isDark ? "#9CA3AF" : "#94A3B8", selected: "#fff" }}
       indicatorColor="#22C55E"
       blurEffect={isDark ? "dark" : "light"}
       labelVisibilityMode="labeled"
@@ -41,14 +40,6 @@ export default function TabsLayout() {
           md="favorite"
         />
         <NativeTabs.Trigger.Label>Wishlist</NativeTabs.Trigger.Label>
-      </NativeTabs.Trigger>
-
-      <NativeTabs.Trigger name="profile">
-        <NativeTabs.Trigger.Icon
-          sf={{ default: "person", selected: "person.fill" }}
-          md="person"
-        />
-        <NativeTabs.Trigger.Label>Profile</NativeTabs.Trigger.Label>
       </NativeTabs.Trigger>
     </NativeTabs>
   );

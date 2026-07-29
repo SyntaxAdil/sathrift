@@ -26,7 +26,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
   location,
   isWishlisted = false,
   onPress,
-  onWishlistPress,
+  
 }) => {
   const conditionColors: Record<string, string> = {
     'New': '#22C55E',
@@ -62,17 +62,7 @@ const ProductCard: React.FC<ProductCardProps> = ({
             </Text>
           </View>
 
-          <TouchableOpacity
-            onPress={onWishlistPress}
-            className="absolute top-2 right-2 bg-white/90 dark:bg-gray-800/90 p-1.5 rounded-full"
-          >
-            <Feather 
-              name="heart" 
-              size={18} 
-              color={isWishlisted ? '#EF4444' : '#94A3B8'}
-              fill={isWishlisted ? '#EF4444' : 'transparent'}
-            />
-          </TouchableOpacity>
+        
 
           <View className="absolute bottom-2 left-2 bg-black/60 px-3 py-1.5 rounded-full backdrop-blur-sm">
             <Text className="text-white font-bold text-sm">

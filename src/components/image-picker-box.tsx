@@ -1,3 +1,4 @@
+// components/image-picker-box.tsx
 import React, { useState } from "react";
 import { View, Text, Pressable, Image, ScrollView } from "react-native";
 import * as ImagePicker from "expo-image-picker";
@@ -53,12 +54,12 @@ const ImagePickerBox = ({ onImagesChange }: Props) => {
       {images.length === 0 ? (
         <Pressable
           onPress={pickImages}
-          className="h-48 rounded-2xl border border-dashed border-gray-300 bg-gray-50 items-center justify-center"
+          className="h-32 rounded-2xl border border-dashed border-gray-300 bg-gray-50 dark:bg-gray-800 items-center justify-center"
         >
           <Ionicons name="cloud-upload-outline" size={28} color="#64748b" />
 
-          <Text className="mt-4 text-gray-700 font-semibold">
-            Tap to upload photos
+          <Text className="mt-2 text-gray-700 dark:text-gray-300 font-semibold text-sm">
+            Upload photo
           </Text>
         </Pressable>
       ) : (
@@ -67,17 +68,17 @@ const ImagePickerBox = ({ onImagesChange }: Props) => {
             source={{
               uri: images[0],
             }}
-            className="w-full h-52 rounded-2xl"
+            className="w-full h-40 rounded-2xl"
           />
 
-          <ScrollView horizontal className="mt-4">
+          <ScrollView horizontal className="mt-3">
             {images.slice(1).map((img, index) => (
               <View key={img} className="mr-3 relative">
                 <Image
                   source={{
                     uri: img,
                   }}
-                  className="w-24 h-24 rounded-xl"
+                  className="w-20 h-20 rounded-xl"
                 />
 
                 <Pressable
@@ -92,7 +93,7 @@ const ImagePickerBox = ({ onImagesChange }: Props) => {
             {images.length < MAX_IMAGES && (
               <Pressable
                 onPress={pickImages}
-                className="w-24 h-24 rounded-xl border border-dashed border-gray-300 items-center justify-center"
+                className="w-20 h-20 rounded-xl border border-dashed border-gray-300 items-center justify-center"
               >
                 <Ionicons name="add" size={28} color="#64748b" />
               </Pressable>

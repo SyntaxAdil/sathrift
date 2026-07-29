@@ -1,3 +1,4 @@
+// app/_layout.tsx
 import "../../global.css";
 
 import { Stack } from "expo-router";
@@ -13,9 +14,24 @@ export default function RootLayout() {
           name="product/[id]"
           options={{
             headerShown: false,
-            headerTitle: "",
-            headerTransparent: true,
-            headerTintColor: "#1F2937",
+          }}
+        />
+        <Stack.Screen
+          name="profile/index"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="(auth)/login"
+          options={{
+            headerShown: false,
+          }}
+        />
+        <Stack.Screen
+          name="(auth)/register"
+          options={{
+            headerShown: false,
           }}
         />
       </Stack>

@@ -1,3 +1,4 @@
+// app/(tabs)/sell/index.tsx
 import React, { useRef, useState } from "react";
 import {
   View,
@@ -8,40 +9,44 @@ import {
   Modal,
   Alert,
   ActivityIndicator,
+  KeyboardAvoidingView,
+  Platform,
+  TouchableOpacity,
 } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 import * as FileSystem from "expo-file-system/legacy";
+import { useColorScheme } from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
 import ImagePickerBox from "../../components/image-picker-box";
 import { authClient } from "../../lib/auth-client";
 import type { Product } from "../../types/product.type";
+import Header from "../../components/header";
 
 const CATEGORIES = [
-  "Clothing",
-  "Bags",
-  "Shoes",
-  "Watches",
-  "Jewelry",
-  "Accessories",
+  "Electronics",
+  "Fashion",
+  "Books",
   "Home",
+  "Sports",
+  "Vehicles",
+  "Accessories",
   "Other",
 ];
 
 const CONDITIONS: { label: string; value: Product["condition"] }[] = [
   { label: "New", value: "New" },
-  { label: "Mint", value: "Like New" },
+  { label: "Like New", value: "Like New" },
   { label: "Good", value: "Good" },
   { label: "Fair", value: "Fair" },
+  { label: "Used", value: "Used" },
 ];
 
 const API_URL = process.env.EXPO_PUBLIC_API_URL || "http://localhost:5000";
 
-const inputBase = {
-  paddingHorizontal: 16,
-  paddingVertical: 12,
-};
-
 const SellScreen = () => {
+  const colorScheme = useColorScheme();
+  const isDark = colorScheme === "dark";
   const { data: session } = authClient.useSession();
 
   const [images, setImages] = useState<string[]>([]);
@@ -79,7 +84,7 @@ const SellScreen = () => {
             parameters: {
               name: "image.jpg",
             },
-          },
+          }
         );
 
         if (uploadResult.status < 200 || uploadResult.status >= 300) {
@@ -89,7 +94,7 @@ const SellScreen = () => {
         const data = JSON.parse(uploadResult.body);
         if (!data.success) throw new Error("Image upload failed");
         return data.data.url as string;
-      }),
+      })
     );
   };
 
@@ -133,7 +138,7 @@ const SellScreen = () => {
 
       if (!result.success) throw new Error(result.message);
 
-      Alert.alert("Success", "Item published!");
+      Alert.alert("Success", "Item published successfully!");
       router.replace("/(tabs)");
     } catch (err: any) {
       Alert.alert("Publish failed", err.message ?? "Something went wrong");
@@ -142,212 +147,229 @@ const SellScreen = () => {
     }
   };
 
-  return (
-    <ScrollView className="flex-1 bg-slate-50 dark:bg-neutral-950">
-      <View className="mt-16 mx-6 pb-10">
-        <Text className="text-2xl font-bold text-black dark:text-white">
-          Sell your item
-        </Text>
-        <Text className="text-gray-500 dark:text-gray-400 mt-1">
-          Post your luxury or sustainable pre-loved goods to the community.
-        </Text>
-
-        <Text className="mt-6 text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wide">
-          ITEM PHOTOGRAPHY
-        </Text>
-        <ImagePickerBox onImagesChange={setImages} />
-
-        <Field label="PRODUCT TITLE">
-          <TextInput
-            value={title}
-            onChangeText={setTitle}
-            placeholder="e.g. Vintage 90s Wool Trench Coat"
-            placeholderTextColor="#94a3b8"
-            style={inputBase}
-            className="bg-slate-100 dark:bg-neutral-900 text-black dark:text-white rounded-xl"
-          />
-        </Field>
-
-        <Field label="CATEGORY">
-          <View ref={categoryFieldRef} collapsable={false}>
-            <Pressable
-              onPress={openCategoryDropdown}
-              style={inputBase}
-              className="flex-row justify-between items-center bg-slate-100 dark:bg-neutral-900 rounded-xl"
-            >
-              <Text
-                className={
-                  category ? "text-black dark:text-white" : "text-gray-400"
-                }
-              >
-                {category || "Select Category"}
-              </Text>
-              <Ionicons
-                name={categoryModalOpen ? "chevron-up" : "chevron-down"}
-                size={18}
-                color="#94a3b8"
-              />
-            </Pressable>
-          </View>
-        </Field>
-
-        <Modal
-          visible={categoryModalOpen}
-          transparent
-          animationType="fade"
-          onRequestClose={() => setCategoryModalOpen(false)}
-        >
-          <Pressable
-            className="flex-1"
-            onPress={() => setCategoryModalOpen(false)}
+  if (!session) {
+    return (
+      <View className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}>
+        <Header/>
+        <View className="flex-1 items-center justify-center p-6">
+          <Ionicons name="cloud-upload-outline" size={64} color="#94A3B8" />
+          <Text className={`text-lg font-semibold mt-4 ${isDark ? "text-white" : "text-gray-900"}`}>
+            Sign In Required
+          </Text>
+          <Text className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"} mt-1 text-center`}>
+            Please sign in to sell your items
+          </Text>
+          <TouchableOpacity
+            onPress={() => router.push("/(auth)/login")}
+            className="mt-6 bg-emerald-500 px-8 py-3 rounded-full"
           >
-            <View
-              style={{
-                position: "absolute",
-                top: dropdownPos.y,
-                left: dropdownPos.x,
-                width: dropdownPos.width,
-                maxHeight: 280,
-              }}
-              className="bg-white dark:bg-neutral-900 rounded-xl border border-gray-100 dark:border-neutral-800 shadow-lg overflow-hidden"
-            >
-              <ScrollView bounces={false}>
-                {CATEGORIES.map((c) => {
-                  const active = c === category;
-                  return (
-                    <Pressable
-                      key={c}
-                      onPress={() => {
-                        setCategory(c);
-                        setCategoryModalOpen(false);
-                      }}
-                      className={`px-4 py-3 border-b border-gray-100 dark:border-neutral-800 ${
-                        active ? "bg-slate-50 dark:bg-neutral-800" : ""
-                      }`}
-                    >
-                      <Text
-                        className={
-                          active
-                            ? "text-green-600 font-semibold"
-                            : "text-black dark:text-white"
-                        }
-                      >
-                        {c}
-                      </Text>
-                    </Pressable>
-                  );
-                })}
-              </ScrollView>
-            </View>
-          </Pressable>
-        </Modal>
+            <Text className="text-white font-semibold">Sign In</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    );
+  }
 
-        <Field label="DESCRIPTION">
-          <TextInput
-            value={description}
-            onChangeText={setDescription}
-            placeholder="Tell us about the history, material, and fit of your item..."
-            placeholderTextColor="#94a3b8"
-            multiline
-            numberOfLines={4}
-            textAlignVertical="top"
-            style={[inputBase, { height: 96 }]}
-            className="bg-slate-100 dark:bg-neutral-900 text-black dark:text-white rounded-xl"
-          />
-        </Field>
+  return (
+    <KeyboardAvoidingView
+      className={`flex-1 ${isDark ? "bg-gray-900" : "bg-gray-50"}`}
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+    >
+      <Header />
+      <ScrollView
+        showsVerticalScrollIndicator={false}
+        className="flex-1"
+        contentContainerStyle={{ paddingBottom: 40 }}
+      >
+        <View className="px-5 pt-4 pb-10">
+          <Text className={`text-2xl font-bold ${isDark ? "text-white" : "text-gray-900"}`}>
+            List Your Item
+          </Text>
+          <Text className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"} mt-1`}>
+            Give your pre-loved items a second life
+          </Text>
 
-        <Field label="CONDITION">
-          <View className="flex-row bg-slate-100 dark:bg-neutral-900 rounded-xl p-1">
-            {CONDITIONS.map((c) => {
-              const active = condition === c.value;
-              return (
-                <Pressable
-                  key={c.value}
-                  onPress={() => setCondition(c.value)}
-                  className={`flex-1 py-2 rounded-lg items-center ${
-                    active ? "bg-white dark:bg-neutral-800" : ""
-                  }`}
-                >
-                  <Text
-                    className={
-                      active
-                        ? "text-green-600 font-semibold"
-                        : "text-gray-500 dark:text-gray-400"
-                    }
-                  >
-                    {c.label}
-                  </Text>
-                </Pressable>
-              );
-            })}
+          <View className="mt-6">
+            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+              Photos
+            </Text>
+            <ImagePickerBox onImagesChange={setImages} />
           </View>
-        </Field>
 
-        <View className="flex-row mt-5 gap-4">
-          <View className="flex-1">
-            <Text className="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wide mb-2">
-              PRICE ($)
+          <View className="mt-5">
+            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+              Title
             </Text>
             <TextInput
-              value={price}
-              onChangeText={setPrice}
-              placeholder="0.00"
-              placeholderTextColor="#94a3b8"
-              keyboardType="decimal-pad"
-              style={inputBase}
-              className="bg-slate-100 dark:bg-neutral-900 text-black dark:text-white rounded-xl"
+              value={title}
+              onChangeText={setTitle}
+              placeholder="What are you selling?"
+              placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+              className={`${isDark ? "bg-gray-800 text-white" : "bg-white text-gray-900"} p-4 rounded-2xl shadow-sm`}
             />
           </View>
-          <View className="flex-1">
-            <Text className="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wide mb-2">
-              LOCATION
+
+          <View className="mt-5">
+            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+              Category
             </Text>
-            <View
-              style={{ paddingHorizontal: 16 }}
-              className="flex-row items-center bg-slate-100 dark:bg-neutral-900 rounded-xl"
-            >
-              <Ionicons name="location-outline" size={16} color="#94a3b8" />
-              <TextInput
-                value={location}
-                onChangeText={setLocation}
-                placeholder="City, State"
-                placeholderTextColor="#94a3b8"
-                style={{ paddingVertical: 12, marginLeft: 8 }}
-                className="flex-1 text-black dark:text-white"
-              />
+            <View ref={categoryFieldRef} collapsable={false}>
+              <Pressable
+                onPress={openCategoryDropdown}
+                className={`flex-row justify-between items-center ${isDark ? "bg-gray-800" : "bg-white"} p-4 rounded-2xl shadow-sm`}
+              >
+                <Text className={category ? (isDark ? "text-white" : "text-gray-900") : isDark ? "text-gray-500" : "text-gray-400"}>
+                  {category || "Select Category"}
+                </Text>
+                <Ionicons
+                  name={categoryModalOpen ? "chevron-up" : "chevron-down"}
+                  size={20}
+                  color={isDark ? "#9CA3AF" : "#94A3B8"}
+                />
+              </Pressable>
             </View>
           </View>
-        </View>
 
-        <Pressable
-          onPress={handlePublish}
-          disabled={submitting}
-          className="mt-8 bg-green-500 rounded-xl py-4 items-center"
-        >
-          {submitting ? (
-            <ActivityIndicator color="white" />
-          ) : (
-            <Text className="text-white font-semibold">Publish Item</Text>
-          )}
-        </Pressable>
-      </View>
-    </ScrollView>
+          <Modal
+            visible={categoryModalOpen}
+            transparent
+            animationType="fade"
+            onRequestClose={() => setCategoryModalOpen(false)}
+          >
+            <Pressable
+              className="flex-1"
+              onPress={() => setCategoryModalOpen(false)}
+            >
+              <View
+                style={{
+                  position: "absolute",
+                  top: dropdownPos.y,
+                  left: dropdownPos.x,
+                  width: dropdownPos.width,
+                  maxHeight: 280,
+                }}
+                className={`${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl shadow-xl overflow-hidden border ${isDark ? "border-gray-700" : "border-gray-100"}`}
+              >
+                <ScrollView bounces={false}>
+                  {CATEGORIES.map((c) => {
+                    const active = c === category;
+                    return (
+                      <Pressable
+                        key={c}
+                        onPress={() => {
+                          setCategory(c);
+                          setCategoryModalOpen(false);
+                        }}
+                        className={`px-4 py-3.5 ${active ? (isDark ? "bg-gray-700" : "bg-gray-50") : ""}`}
+                      >
+                        <Text
+                          className={
+                            active
+                              ? "text-emerald-500 font-semibold"
+                              : isDark ? "text-white" : "text-gray-900"
+                          }
+                        >
+                          {c}
+                        </Text>
+                      </Pressable>
+                    );
+                  })}
+                </ScrollView>
+              </View>
+            </Pressable>
+          </Modal>
+
+          <View className="mt-5">
+            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+              Description
+            </Text>
+            <TextInput
+              value={description}
+              onChangeText={setDescription}
+              placeholder="Describe your item in detail..."
+              placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+              multiline
+              numberOfLines={5}
+              textAlignVertical="top"
+              className={`${isDark ? "bg-gray-800 text-white" : "bg-white text-gray-900"} p-4 rounded-2xl shadow-sm`}
+              style={{ minHeight: 120 }}
+            />
+          </View>
+
+          <View className="mt-5">
+            <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+              Condition
+            </Text>
+            <View className={`flex-row ${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl p-1.5 shadow-sm`}>
+              {CONDITIONS.map((c) => {
+                const active = condition === c.value;
+                return (
+                  <Pressable
+                    key={c.value}
+                    onPress={() => setCondition(c.value)}
+                    className={`flex-1 py-2.5 rounded-xl items-center ${active ? (isDark ? "bg-gray-700" : "bg-gray-100") : ""}`}
+                  >
+                    <Text
+                      className={
+                        active
+                          ? "text-emerald-500 font-semibold"
+                          : isDark ? "text-gray-400" : "text-gray-500"
+                      }
+                    >
+                      {c.label}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          </View>
+
+          <View className="flex-row gap-4 mt-5">
+            <View className="flex-1">
+              <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+                Price ($)
+              </Text>
+              <TextInput
+                value={price}
+                onChangeText={setPrice}
+                placeholder="0.00"
+                placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                keyboardType="decimal-pad"
+                className={`${isDark ? "bg-gray-800 text-white" : "bg-white text-gray-900"} p-4 rounded-2xl shadow-sm`}
+              />
+            </View>
+            <View className="flex-1">
+              <Text className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}>
+                Location
+              </Text>
+              <View className={`flex-row items-center ${isDark ? "bg-gray-800" : "bg-white"} rounded-2xl shadow-sm`}>
+                <Ionicons name="location-outline" size={20} color={isDark ? "#6B7280" : "#9CA3AF"} style={{ marginLeft: 14 }} />
+                <TextInput
+                  value={location}
+                  onChangeText={setLocation}
+                  placeholder="City, State"
+                  placeholderTextColor={isDark ? "#6B7280" : "#9CA3AF"}
+                  className={`flex-1 ${isDark ? "text-white" : "text-gray-900"} p-4`}
+                />
+              </View>
+            </View>
+          </View>
+
+          <Pressable
+            onPress={handlePublish}
+            disabled={submitting}
+            className="mt-8 bg-emerald-500 rounded-2xl py-4 items-center "
+          >
+            {submitting ? (
+              <ActivityIndicator color="white" />
+            ) : (
+              <Text className="text-white font-bold text-base">Publish Item</Text>
+            )}
+          </Pressable>
+        </View>
+      </ScrollView>
+    </KeyboardAvoidingView>
   );
 };
-
-const Field = ({
-  label,
-  children,
-}: {
-  label: string;
-  children: React.ReactNode;
-}) => (
-  <View className="mt-5">
-    <Text className="text-xs font-bold text-gray-500 dark:text-gray-400 tracking-wide mb-2">
-      {label}
-    </Text>
-    {children}
-  </View>
-);
 
 export default SellScreen;
