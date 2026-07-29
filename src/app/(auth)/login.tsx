@@ -251,33 +251,7 @@ export default function Login() {
                   )}
                 </TouchableOpacity>
 
-                <TouchableOpacity
-                  onPress={() => handleSocialLogin("apple")}
-                  disabled={socialLoading !== null || loading}
-                  activeOpacity={0.85}
-                  className={`flex-1 flex-row items-center justify-center gap-2 py-3.5 rounded-xl border ${
-                    isDark
-                      ? "border-gray-700 bg-gray-800"
-                      : "border-gray-200 bg-white"
-                  }`}
-                >
-                  {socialLoading === "apple" ? (
-                    <ActivityIndicator size="small" color={subtleIcon} />
-                  ) : (
-                    <>
-                      <FontAwesome
-                        name="apple"
-                        size={20}
-                        color={isDark ? "#FFFFFF" : "#000000"}
-                      />
-                      <Text
-                        className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-700"}`}
-                      >
-                        Apple
-                      </Text>
-                    </>
-                  )}
-                </TouchableOpacity>
+               
               </View>
             </View>
 
