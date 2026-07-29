@@ -21,7 +21,7 @@ const FeaturedSection: React.FC<FeaturedSectionProps> = ({
   if (products.length === 0) return null;
 
   return (
-    <View className="mb-6">
+    <View className="my-10">
       <View className="flex-row justify-between items-center mb-3 px-1">
         <Text className="text-lg font-bold dark:text-white">🔥 Featured</Text>
         <TouchableOpacity onPress={() => router.push('/explore')}>
@@ -43,9 +43,8 @@ const FeaturedSection: React.FC<FeaturedSectionProps> = ({
               condition={item.condition}
               images={item.images}
               location={item.location}
-              isWishlisted={false}
+              
               onPress={() => onProductPress(item._id)}
-              onWishlistPress={() => onWishlistPress(item._id)}
             />
           </View>
         )}
