@@ -158,11 +158,7 @@ export default function Login() {
                   >
                     Password
                   </Text>
-                  <TouchableOpacity>
-                    <Text className="text-emerald-500 text-sm font-medium">
-                      Forgot Password?
-                    </Text>
-                  </TouchableOpacity>
+                
                 </View>
                 <View
                   className={`flex-row items-center gap-2.5 ${

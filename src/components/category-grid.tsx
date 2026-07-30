@@ -15,7 +15,7 @@ const categories: CategoryItem[] = [
     id: "1",
     name: "Books & Notes",
     subtitle: "Secondhand & New",
-    image: "https://loremflickr.com/500/600/textbook?lock=101",
+    image: "https://images.unsplash.com/photo-1463320726281-696a485928c7?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Ym9vayUyMHNhbGV8ZW58MHx8MHx8fDA%3D",
   },
   {
     id: "2",

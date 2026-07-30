@@ -296,34 +296,6 @@ export default function SignUp() {
                 <View className={`flex-1 h-px ${isDark ? "bg-gray-700" : "bg-gray-200"}`} />
               </View>
 
-              <View className="flex-row gap-3">
-                <TouchableOpacity
-                  activeOpacity={0.85}
-                  className={`flex-1 flex-row items-center justify-center gap-2 py-3.5 rounded-xl border ${
-                    isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
-                  }`}
-                >
-                  <Feather name="mail" size={18} color={subtleIcon} />
-                  <Text
-                    className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-700"}`}
-                  >
-                    Google
-                  </Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  activeOpacity={0.85}
-                  className={`flex-1 flex-row items-center justify-center gap-2 py-3.5 rounded-xl border ${
-                    isDark ? "border-gray-700 bg-gray-800" : "border-gray-200 bg-white"
-                  }`}
-                >
-                  <Feather name="user" size={18} color={subtleIcon} />
-                  <Text
-                    className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-700"}`}
-                  >
-                    Apple
-                  </Text>
-                </TouchableOpacity>
-              </View>
             </View>
 
             {/* Footer */}
