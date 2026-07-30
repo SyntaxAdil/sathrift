@@ -9,10 +9,20 @@
       "distribution": "internal"
     },
     "preview": {
-      "distribution": "internal"
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://sathrift-server.vercel.app",
+        "EXPO_PUBLIC_IMGBB_API": "9cd29791ea6932b6e0a8b67b0a92fc43"
+      }
     },
     "production": {
-      "autoIncrement": true
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://sathrift-server.vercel.app"
+      }
     }
   },
   "submit": {
