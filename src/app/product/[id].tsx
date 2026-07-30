@@ -12,6 +12,7 @@ import {
   Dimensions,
   Alert,
   Linking,
+  Share,
 } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
@@ -118,6 +119,33 @@ export default function ProductDetailScreen() {
     }
   };
 
+  const handleShare = async () => {
+    try {
+      const shareMessage = `Check out this product: ${product.title}\nPrice: $${product.price?.toFixed(2)}\nLocation: ${product.location || 'Location not specified'}\n\nView details: ${API_URL}/product/${id}`;
+      
+      const result = await Share.share({
+        message: shareMessage,
+        title: product.title,
+        url: `${API_URL}/product/${id}`, // For iOS
+      });
+
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // Shared with activity type of result.activityType
+          console.log('Shared with activity type:', result.activityType);
+        } else {
+          // Shared
+          console.log('Shared successfully');
+        }
+      } else if (result.action === Share.dismissedAction) {
+        // Dismissed
+        console.log('Share dismissed');
+      }
+    } catch (error: any) {
+      Alert.alert('Error', error.message || 'Failed to share product');
+    }
+  };
+
   const handleWhatsApp = () => {
     const phone = product?.sellerWhatsapp || "";
     if (!phone) {
@@ -204,7 +232,7 @@ export default function ProductDetailScreen() {
               />
             </TouchableOpacity>
 
-            <View className="absolute top-12 right-4 flex-row space-x-3">
+            <View className="absolute top-12 right-4 flex-row gap-3">
               <TouchableOpacity
                 onPress={handleWishlistToggle}
                 disabled={wishlistLoading}
@@ -223,7 +251,10 @@ export default function ProductDetailScreen() {
                   />
                 )}
               </TouchableOpacity>
-              <TouchableOpacity className="w-10 h-10 bg-white/90 dark:bg-gray-800/90 rounded-full items-center justify-center shadow-lg">
+              <TouchableOpacity 
+                onPress={handleShare}
+                className="w-10 h-10 bg-white/90 dark:bg-gray-800/90 rounded-full items-center justify-center shadow-lg"
+              >
                 <Feather
                   name="share-2"
                   size={20}

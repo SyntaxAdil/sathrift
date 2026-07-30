@@ -1,6 +1,5 @@
-// components/header.tsx
-import React from "react";
-import { View, Image, TouchableOpacity, Text, StatusBar } from "react-native";
+import React, { useState } from "react";
+import { View, Image, TouchableOpacity, Text, StatusBar, StyleSheet } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useColorScheme } from 'react-native';
@@ -22,9 +21,20 @@ const Header: React.FC<HeaderProps> = ({
   const isDark = colorScheme === 'dark';
   const isLoggedIn = !!session;
   const insets = useSafeAreaInsets();
+  const [imageError, setImageError] = useState(false);
 
   const handleProfilePress = () => {
     router.push('/profile');
+  };
+
+  const getUserInitial = () => {
+    if (session?.user?.name) {
+      return session.user.name.charAt(0).toUpperCase();
+    }
+    if (session?.user?.email) {
+      return session.user.email.charAt(0).toUpperCase();
+    }
+    return 'U';
   };
 
   return (
@@ -57,17 +67,24 @@ const Header: React.FC<HeaderProps> = ({
         {isLoggedIn ? (
           <TouchableOpacity
             onPress={handleProfilePress}
-            className="w-10 h-10 rounded-full bg-emerald-500 items-center justify-center overflow-hidden"
+            style={[
+              styles.avatarContainer,
+              { backgroundColor: '#22C55E' }
+            ]}
+            activeOpacity={0.7}
           >
-            {session.user?.image ? (
+            {session.user?.image && !imageError ? (
               <Image
                 source={{ uri: session.user.image }}
-                className="w-full h-full"
+                style={styles.avatarImage}
                 resizeMode="cover"
+                onError={() => setImageError(true)}
+                // Add these props for better image handling
+                defaultSource={require('../../assets/images/default-avatar.jpg')}
               />
             ) : (
-              <Text className="text-white text-base font-bold">
-                {session.user?.name?.charAt(0)?.toUpperCase() || 'U'}
+              <Text style={styles.avatarText}>
+                {getUserInitial()}
               </Text>
             )}
           </TouchableOpacity>
@@ -75,7 +92,7 @@ const Header: React.FC<HeaderProps> = ({
           <View className="flex-row items-center gap-2">
             <TouchableOpacity
               onPress={() => router.push('/(auth)/login')}
-              className="px-4 py-2 rounded-full bg-emerald-500 "
+              className="px-4 py-2 rounded-full bg-emerald-500"
             >
               <Text className="text-white text-sm font-semibold">Sign In</Text>
             </TouchableOpacity>
@@ -91,5 +108,29 @@ const Header: React.FC<HeaderProps> = ({
     </>
   );
 };
+
+const styles = StyleSheet.create({
+  avatarContainer: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    alignItems: 'center',
+    justifyContent: 'center',
+    overflow: 'hidden',
+    // Fix for potential rendering issues
+    backgroundColor: '#22C55E',
+  },
+  avatarImage: {
+    width: '100%',
+    height: '100%',
+    // Ensure image is not transformed
+    transform: [{ scaleX: 1 }, { scaleY: 1 }],
+  },
+  avatarText: {
+    color: 'white',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+});
 
 export default Header;

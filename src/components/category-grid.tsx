@@ -7,7 +7,7 @@ interface CategoryItem {
   id: string;
   name: string;
   subtitle: string;
-  image: string;
+  image: any;
 }
 
 const categories: CategoryItem[] = [
@@ -15,25 +15,25 @@ const categories: CategoryItem[] = [
     id: "1",
     name: "Books & Notes",
     subtitle: "Secondhand & New",
-    image: "https://images.unsplash.com/photo-1463320726281-696a485928c7?fm=jpg&q=60&w=3000&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxzZWFyY2h8M3x8Ym9vayUyMHNhbGV8ZW58MHx8MHx8fDA%3D",
+    image: require("../../assets/images/cat-1.jpg"),
   },
   {
     id: "2",
     name: "Electronics",
     subtitle: "Laptops, Phones & More",
-    image: "https://loremflickr.com/500/600/laptop?lock=102",
+    image: require("../../assets/images/cat-2.jpg"),
   },
   {
     id: "3",
     name: "Hostel Essentials",
     subtitle: "Everything for Your Room",
-    image: "https://loremflickr.com/1000/450/dormroom?lock=103",
+    image: require("../../assets/images/cat-3.jpg"),
   },
 ];
 
 const CategoryCard = ({ item, style }: { item: CategoryItem; style?: any }) => (
   <ImageBackground
-    source={{ uri: item.image }}
+    source={item.image}
     style={[
       {
         overflow: "hidden",
@@ -44,8 +44,9 @@ const CategoryCard = ({ item, style }: { item: CategoryItem; style?: any }) => (
     ]}
     imageStyle={{ borderRadius: 20 }}
   >
+    {/* Black gradient overlay - plain fade, top transparent to bottom solid black */}
     <LinearGradient
-      colors={["transparent", "rgba(0,0,0,0.85)"]}
+      colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.9)"]}
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.5, y: 1 }}
       style={{
