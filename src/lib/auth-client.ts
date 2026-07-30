@@ -5,7 +5,7 @@ import * as SecureStore from "expo-secure-store";
 import type { BetterAuthClientPlugin } from "better-auth/types";
 
 export const authClient = createAuthClient({
-  baseURL: process.env.BETTER_AUTH_URL,
+  baseURL: process.env.EXPO_PUBLIC_API_URL,
   plugins: [
     expoClient({
       scheme: "sathrift",

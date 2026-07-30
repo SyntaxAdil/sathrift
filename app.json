@@ -19,7 +19,7 @@
       "package": "com.syntaxadil.sathrift"
     },
     "web": {
-      "output": "server",
+      "output": "static",
       "favicon": "./assets/images/favicon.png"
     },
     "plugins": [
