@@ -7,7 +7,7 @@ interface CategoryItem {
   id: string;
   name: string;
   subtitle: string;
-  image: any;
+  image: any; // This should be 'any' for require() imports
 }
 
 const categories: CategoryItem[] = [
@@ -15,25 +15,25 @@ const categories: CategoryItem[] = [
     id: "1",
     name: "Books & Notes",
     subtitle: "Secondhand & New",
-    image: require("../../assets/images/cat-1.jpg"),
+    image: require("../../assets/images/cat-1.png"), // ✅ Fixed: Added require()
   },
   {
     id: "2",
     name: "Electronics",
     subtitle: "Laptops, Phones & More",
-    image: require("../../assets/images/cat-2.jpg"),
+    image: require("../../assets/images/cat-2.png"), // ✅ Fixed: Added require()
   },
   {
     id: "3",
     name: "Hostel Essentials",
     subtitle: "Everything for Your Room",
-    image: require("../../assets/images/cat-3.jpg"),
+    image: require("../../assets/images/cat-3.png"), // ✅ Fixed: Added require()
   },
 ];
 
 const CategoryCard = ({ item, style }: { item: CategoryItem; style?: any }) => (
   <ImageBackground
-    source={item.image}
+    source={item.image} // ✅ Fixed: No need for uri wrapper
     style={[
       {
         overflow: "hidden",
@@ -44,9 +44,8 @@ const CategoryCard = ({ item, style }: { item: CategoryItem; style?: any }) => (
     ]}
     imageStyle={{ borderRadius: 20 }}
   >
-    {/* Black gradient overlay - plain fade, top transparent to bottom solid black */}
     <LinearGradient
-      colors={["rgba(0,0,0,0)", "rgba(0,0,0,0.9)"]}
+      colors={["transparent", "rgba(0,0,0,0.85)"]}
       start={{ x: 0.5, y: 0 }}
       end={{ x: 0.5, y: 1 }}
       style={{

@@ -14,7 +14,7 @@ import {
   ScrollView,
   useColorScheme,
 } from "react-native";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { Feather, FontAwesome } from "@expo/vector-icons";
 import { authClient } from "@/lib/auth-client";
 
@@ -96,11 +96,13 @@ export default function Login() {
           <View className="flex-1 px-6 pt-16 pb-8 gap-8">
             {/* Logo */}
             <View className="items-center">
-              <Image
-                source={require("@/assets/images/logo.png")}
-                className="w-32 h-12"
-                resizeMode="contain"
-              />
+              <Link href={"/"}>
+                <Image
+                  source={require("@/assets/images/logo.png")}
+                  className="w-32 h-12"
+                  resizeMode="contain"
+                />
+              </Link>
             </View>
 
             {/* Header */}
@@ -158,7 +160,6 @@ export default function Login() {
                   >
                     Password
                   </Text>
-                
                 </View>
                 <View
                   className={`flex-row items-center gap-2.5 ${
@@ -246,8 +247,6 @@ export default function Login() {
                     </>
                   )}
                 </TouchableOpacity>
-
-               
               </View>
             </View>
 

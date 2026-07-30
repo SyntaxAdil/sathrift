@@ -13,12 +13,13 @@ import {
   Image,
   ScrollView,
   useColorScheme,
+  Button,
 } from "react-native";
-import { router } from "expo-router";
+import { Link, router } from "expo-router";
 import { Feather } from "@expo/vector-icons";
 import { authClient } from "@/lib/auth-client";
 import * as ImagePicker from "expo-image-picker";
-
+import * as FileSystem from "expo-file-system/legacy";
 export default function SignUp() {
   const colorScheme = useColorScheme();
   const isDark = colorScheme === "dark";
@@ -46,29 +47,35 @@ export default function SignUp() {
     }
   };
 
+  // Uses FileSystem.uploadAsync instead of fetch+FormData —
+  // avoids the "Unsupported FormDataPart implementation" crash
+  // that happens with the RN new-architecture fetch on some devices.
   const uploadImage = async (uri: string): Promise<string | undefined> => {
     try {
-      const formData = new FormData();
-      formData.append("image", {
-        uri: uri,
-        type: "image/jpeg",
-        name: "profile.jpg",
-      } as any);
+      const apiKey = process.env.EXPO_PUBLIC_IMGBB_API;
 
-      const response = await fetch(
-        `https://api.imgbb.com/1/upload?key=${process.env.EXPO_PUBLIC_IMGBB_API}`,
+      const result = await FileSystem.uploadAsync(
+        `https://api.imgbb.com/1/upload?key=${apiKey}`,
+        uri,
         {
-          method: "POST",
-          body: formData,
-        }
+          fieldName: "image",
+          httpMethod: "POST",
+          uploadType: FileSystem.FileSystemUploadType.MULTIPART,
+        },
       );
-      const data = await response.json();
+
+      const data = JSON.parse(result.body);
+
       if (data.success) {
         return data.data.url;
       }
+      console.warn(
+        "[uploadImage] imgbb upload not successful:",
+        data?.error?.message,
+      );
       return undefined;
     } catch (error) {
-      console.error("Image upload error:", error);
+      console.error("[uploadImage] Image upload error:", error);
       return undefined;
     }
   };
@@ -82,9 +89,17 @@ export default function SignUp() {
 
     setLoading(true);
     try {
-      let imageUrl = undefined;
+      let imageUrl: string | undefined = undefined;
+
       if (image) {
         imageUrl = await uploadImage(image);
+
+        if (!imageUrl) {
+          Alert.alert(
+            "Photo upload failed",
+            "Your account will be created without a profile photo. You can add one later from Edit Profile.",
+          );
+        }
       }
 
       const { error } = await authClient.signUp.email({
@@ -115,8 +130,8 @@ export default function SignUp() {
     focusedField === field
       ? "border-emerald-500"
       : isDark
-      ? "border-gray-700"
-      : "border-gray-200";
+        ? "border-gray-700"
+        : "border-gray-200";
 
   return (
     <>
@@ -134,11 +149,13 @@ export default function SignUp() {
           <View className="flex-1 px-6 pt-12 pb-8 gap-6">
             {/* Logo */}
             <View className="items-center">
-              <Image
-                source={require("@/assets/images/logo.png")}
-                className="w-32 h-12"
-                resizeMode="contain"
-              />
+              <Link href={"/"}>
+                <Image
+                  source={require("@/assets/images/logo.png")}
+                  className="w-32 h-12"
+                  resizeMode="contain"
+                />
+              </Link>
             </View>
 
             {/* Header */}
@@ -150,17 +167,27 @@ export default function SignUp() {
               >
                 Create Account
               </Text>
-              <Text className={`text-base ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+              <Text
+                className={`text-base ${isDark ? "text-gray-400" : "text-gray-500"}`}
+              >
                 Join the community and start thrifting
               </Text>
             </View>
 
             {/* Avatar picker */}
             <View className="items-center gap-2">
-              <TouchableOpacity onPress={pickImage} activeOpacity={0.85} className="relative">
+              <TouchableOpacity
+                onPress={pickImage}
+                activeOpacity={0.85}
+                className="relative"
+              >
                 <View className="w-20 h-20 rounded-full bg-emerald-500 items-center justify-center overflow-hidden">
                   {image ? (
-                    <Image source={{ uri: image }} className="w-full h-full" resizeMode="cover" />
+                    <Image
+                      source={{ uri: image }}
+                      className="w-full h-full"
+                      resizeMode="cover"
+                    />
                   ) : (
                     <Feather name="user" size={32} color="white" />
                   )}
@@ -173,7 +200,9 @@ export default function SignUp() {
                   <Feather name="camera" size={14} color="white" />
                 </View>
               </TouchableOpacity>
-              <Text className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+              <Text
+                className={`text-xs ${isDark ? "text-gray-400" : "text-gray-500"}`}
+              >
                 Tap to add profile photo
               </Text>
             </View>
@@ -258,7 +287,9 @@ export default function SignUp() {
                     onFocus={() => setFocusedField("password")}
                     onBlur={() => setFocusedField(null)}
                   />
-                  <TouchableOpacity onPress={() => setShowPassword(!showPassword)}>
+                  <TouchableOpacity
+                    onPress={() => setShowPassword(!showPassword)}
+                  >
                     <Feather
                       name={showPassword ? "eye-off" : "eye"}
                       size={18}
@@ -280,31 +311,24 @@ export default function SignUp() {
                 {loading ? (
                   <ActivityIndicator color="white" />
                 ) : (
-                  <Text className="text-white font-bold text-base">Create Account</Text>
+                  <Text className="text-white font-bold text-base">
+                    Create Account
+                  </Text>
                 )}
               </TouchableOpacity>
-
-              <View className="flex-row items-center gap-3">
-                <View className={`flex-1 h-px ${isDark ? "bg-gray-700" : "bg-gray-200"}`} />
-                <Text
-                  className={`text-xs font-medium tracking-wider ${
-                    isDark ? "text-gray-400" : "text-gray-500"
-                  }`}
-                >
-                  OR CONTINUE WITH
-                </Text>
-                <View className={`flex-1 h-px ${isDark ? "bg-gray-700" : "bg-gray-200"}`} />
-              </View>
-
             </View>
 
             {/* Footer */}
             <View className="flex-row justify-center items-center gap-1 mt-auto">
-              <Text className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}>
+              <Text
+                className={`text-sm ${isDark ? "text-gray-400" : "text-gray-500"}`}
+              >
                 Already have an account?
               </Text>
               <TouchableOpacity onPress={() => router.push("/(auth)/login")}>
-                <Text className="text-emerald-500 font-semibold text-sm">Sign In</Text>
+                <Text className="text-emerald-500 font-semibold text-sm">
+                  Sign In
+                </Text>
               </TouchableOpacity>
             </View>
           </View>

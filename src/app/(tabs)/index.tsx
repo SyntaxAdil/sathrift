@@ -53,6 +53,7 @@ export default function HomeScreen() {
       }
     } catch (error) {
       console.error("Error:", error);
+      
     } finally {
       setLoading(false);
       setRefreshing(false);
