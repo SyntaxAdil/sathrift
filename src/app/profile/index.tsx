@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, Image, TouchableOpacity, ScrollView, RefreshControl, Alert, ActivityIndicator, StatusBar, Pressable } from 'react-native';
 import { useRouter, useFocusEffect } from 'expo-router';
 import { useColorScheme } from 'react-native';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { Feather } from '@expo/vector-icons';
 import { authClient } from '../../lib/auth-client';
 import axios from 'axios';
@@ -27,6 +28,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const insets = useSafeAreaInsets();
   const { data: session, refetch } = authClient.useSession();
   const [myProducts, setMyProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
@@ -74,20 +76,18 @@ export default function ProfileScreen() {
   const handleUpdateProfile = async (name: string, image: string, university: string, phoneNumber: string) => {
     setUpdating(true);
     try {
-      // Update user with additional fields
       const updateData: any = {
         name: name,
         image: image || session?.user?.image,
       };
-      
-      // Add additional fields if they exist in the session user
+
       if (phoneNumber !== undefined) {
         updateData.phoneNumber = phoneNumber;
       }
       if (university !== undefined) {
         updateData.university = university;
       }
-      
+
       await authClient.updateUser(updateData);
       await refetch();
       setEditProfileVisible(false);
@@ -165,7 +165,6 @@ export default function ProfileScreen() {
     );
   }
 
-  // Get additional fields from session user directly (Better Auth adds them to user object)
   const user = session.user as any;
   const phoneNumber = user?.phoneNumber || '';
   const university = user?.university || '';
@@ -173,13 +172,15 @@ export default function ProfileScreen() {
   return (
     <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      
-      <View className="px-5 pt-12 pb-4 flex-row justify-between items-center">
-        <Pressable onPress={()=>router.push("/")}>
 
-        <Text  className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
-          Profile
-        </Text>
+      <View
+        style={{ paddingTop: insets.top + 12 }}
+        className="px-5 pb-4 flex-row justify-between items-center"
+      >
+        <Pressable onPress={() => router.push("/")}>
+          <Text className={`text-4xl font-bold ${isDark ? 'text-white' : 'text-gray-900'}`}>
+            Profile
+          </Text>
         </Pressable>
         <TouchableOpacity
           onPress={handleLogout}
@@ -189,7 +190,7 @@ export default function ProfileScreen() {
           <Text className="text-white font-semibold ml-2 text-sm">Logout</Text>
         </TouchableOpacity>
       </View>
-      
+
       <ScrollView
         showsVerticalScrollIndicator={false}
         className="flex-1"
@@ -226,7 +227,7 @@ export default function ProfileScreen() {
               </Text>
             </View>
           </View>
-          
+
           <TouchableOpacity
             onPress={() => setEditProfileVisible(true)}
             className="mt-4 flex-row items-center justify-center bg-emerald-500 py-2.5 rounded-full"

@@ -4,6 +4,7 @@ import { View, Image, TouchableOpacity, Text, StatusBar } from "react-native";
 import { Feather } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { useColorScheme } from 'react-native';
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { authClient } from "../lib/auth-client";
 
 interface HeaderProps {
@@ -20,6 +21,7 @@ const Header: React.FC<HeaderProps> = ({
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
   const isLoggedIn = !!session;
+  const insets = useSafeAreaInsets();
 
   const handleProfilePress = () => {
     router.push('/profile');
@@ -28,7 +30,10 @@ const Header: React.FC<HeaderProps> = ({
   return (
     <>
       <StatusBar barStyle={isDark ? "light-content" : "dark-content"} />
-      <View className={`flex-row items-center justify-between px-5 py-4 ${isDark ? 'bg-gray-900' : 'bg-white'}`}>
+      <View
+        style={{ paddingTop: insets.top + 12 }}
+        className={`flex-row items-center justify-between px-5 pb-4 ${isDark ? 'bg-gray-900' : 'bg-white'}`}
+      >
         <View className="flex-row items-center">
           {showBack && (
             <TouchableOpacity onPress={() => router.back()} className="mr-3">
@@ -48,15 +53,15 @@ const Header: React.FC<HeaderProps> = ({
             </Text>
           )}
         </View>
-        
+
         {isLoggedIn ? (
-          <TouchableOpacity 
+          <TouchableOpacity
             onPress={handleProfilePress}
             className="w-10 h-10 rounded-full bg-emerald-500 items-center justify-center overflow-hidden"
           >
             {session.user?.image ? (
-              <Image 
-                source={{ uri: session.user.image }} 
+              <Image
+                source={{ uri: session.user.image }}
                 className="w-full h-full"
                 resizeMode="cover"
               />
@@ -68,13 +73,13 @@ const Header: React.FC<HeaderProps> = ({
           </TouchableOpacity>
         ) : (
           <View className="flex-row items-center gap-2">
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => router.push('/(auth)/login')}
               className="px-4 py-2 rounded-full bg-emerald-500 "
             >
               <Text className="text-white text-sm font-semibold">Sign In</Text>
             </TouchableOpacity>
-            <TouchableOpacity 
+            <TouchableOpacity
               onPress={() => router.push('/(auth)/register')}
               className="px-4 py-2 rounded-full border border-emerald-500"
             >
