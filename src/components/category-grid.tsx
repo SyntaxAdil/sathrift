@@ -1,13 +1,11 @@
-// components/category-grid.tsx
 import React from "react";
-import { View, Text, ImageBackground, StyleSheet } from "react-native";
-import { LinearGradient } from "expo-linear-gradient";
+import { View, Text, ImageBackground } from "react-native";
 
 interface CategoryItem {
   id: string;
   name: string;
   subtitle: string;
-  image: any; // This should be 'any' for require() imports
+  image: any;
 }
 
 const categories: CategoryItem[] = [
@@ -15,25 +13,31 @@ const categories: CategoryItem[] = [
     id: "1",
     name: "Books & Notes",
     subtitle: "Secondhand & New",
-    image: require("../../assets/images/cat-1.png"), // ✅ Fixed: Added require()
+    image: require("../../assets/images/cat-1.png"),
   },
   {
     id: "2",
     name: "Electronics",
     subtitle: "Laptops, Phones & More",
-    image: require("../../assets/images/cat-2.png"), // ✅ Fixed: Added require()
+    image: require("../../assets/images/cat-2.jpg"),
   },
   {
     id: "3",
     name: "Hostel Essentials",
     subtitle: "Everything for Your Room",
-    image: require("../../assets/images/cat-3.png"), // ✅ Fixed: Added require()
+    image: require("../../assets/images/cat-3.png"),
   },
 ];
 
-const CategoryCard = ({ item, style }: { item: CategoryItem; style?: any }) => (
+const CategoryCard = ({
+  item,
+  style,
+}: {
+  item: CategoryItem;
+  style?: any;
+}) => (
   <ImageBackground
-    source={item.image} // ✅ Fixed: No need for uri wrapper
+    source={item.image}
     style={[
       {
         overflow: "hidden",
@@ -42,22 +46,10 @@ const CategoryCard = ({ item, style }: { item: CategoryItem; style?: any }) => (
       },
       style,
     ]}
-    imageStyle={{ borderRadius: 20 }}
+    imageStyle={{
+      borderRadius: 20,
+    }}
   >
-    <LinearGradient
-      colors={["transparent", "rgba(0,0,0,0.85)"]}
-      start={{ x: 0.5, y: 0 }}
-      end={{ x: 0.5, y: 1 }}
-      style={{
-        position: "absolute",
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        borderRadius: 20,
-      }}
-    />
-
     <View
       style={{
         padding: 14,
