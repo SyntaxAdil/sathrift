@@ -145,7 +145,7 @@ export default function WishlistScreen() {
             </Text>
             <View className="flex-row items-center justify-between mt-1">
               <Text className="text-emerald-400 text-xl font-bold">
-                ${item.product.price?.toFixed(2)}
+                BDT {item.product.price?.toFixed(2)}
               </Text>
               {item.product.location && (
                 <View className="flex-row items-center bg-white/15 px-2 py-0.5 rounded-full">
@@ -165,7 +165,7 @@ export default function WishlistScreen() {
   if (!session) {
     return (
       <View className={`flex-1 ${isDark ? 'bg-gray-900' : 'bg-gray-50'}`}>
-        <Header title="Wishlist" />
+        <Header />
         <View className="flex-1 items-center justify-center p-6">
           <Feather name="heart" size={64} color="#94A3B8" />
           <Text className={`text-lg font-semibold mt-4 ${isDark ? 'text-white' : 'text-gray-900'}`}>

@@ -309,7 +309,7 @@ export default function ProductDetailScreen() {
                 </View>
               </View>
               <Text className="text-3xl font-bold text-emerald-500">
-                ${product.price?.toFixed(2)}
+                BDT {product.price?.toFixed(2)}
               </Text>
             </View>
 

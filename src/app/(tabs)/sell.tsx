@@ -115,7 +115,17 @@ const SellScreen = () => {
       return "WhatsApp number is required for buyers to contact you";
     return null;
   };
+  const resetForm = () => {
+    setImages([]);
+    setTitle("");
+    setCategory("");
+    setDescription("");
+    setCondition("New");
+    setPrice("");
+    setLocation("");
 
+    setWhatsapp((session?.user as any)?.phoneNumber ?? "");
+  };
   const handlePublish = async () => {
     const error = validate();
     if (error) return Alert.alert("Missing info", error);
@@ -147,8 +157,14 @@ const SellScreen = () => {
 
       if (!result.success) throw new Error(result.message);
 
-      Alert.alert("Success", "Item published successfully!");
-      router.replace("/(tabs)");
+      resetForm();
+
+      Alert.alert("Success", "Item published successfully!", [
+        {
+          text: "OK",
+          onPress: () => router.replace("/(tabs)"),
+        },
+      ]);
     } catch (err: any) {
       Alert.alert("Publish failed", err.message ?? "Something went wrong");
     } finally {
@@ -372,7 +388,7 @@ const SellScreen = () => {
               <Text
                 className={`text-xs font-semibold ${isDark ? "text-gray-400" : "text-gray-500"} uppercase tracking-wider mb-2`}
               >
-                Price ($)
+                Price (৳)
               </Text>
               <TextInput
                 value={price}

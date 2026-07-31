@@ -372,7 +372,7 @@ const EditProductModal: React.FC<EditProductModalProps> = ({
             </View>
 
             {/* Action Buttons */}
-            <View className="flex-row space-x-3 mt-4">
+            <View className="flex-row gap-3 mt-4">
               <TouchableOpacity
                 onPress={onClose}
                 className="flex-1 py-4 rounded-xl bg-gray-200 dark:bg-gray-700"

@@ -15,8 +15,11 @@ import {
   useColorScheme,
 } from "react-native";
 import { Link, router } from "expo-router";
-import { Feather, FontAwesome } from "@expo/vector-icons";
+import { Feather } from "@expo/vector-icons";
 import { authClient } from "@/lib/auth-client";
+
+const DEMO_EMAIL = "test@gmail.com";
+const DEMO_PASSWORD = "test@001";
 
 export default function Login() {
   const colorScheme = useColorScheme();
@@ -29,6 +32,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [demoLoading, setDemoLoading] = useState(false);
   const [focusedField, setFocusedField] = useState<"email" | "password" | null>(
     null,
   );
@@ -51,6 +55,29 @@ export default function Login() {
       Alert.alert("Error", "Something went wrong");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleDemoLogin = async () => {
+    setEmail(DEMO_EMAIL);
+    setPassword(DEMO_PASSWORD);
+    setDemoLoading(true);
+    try {
+      const { error } = await authClient.signIn.email({
+        email: DEMO_EMAIL,
+        password: DEMO_PASSWORD,
+      });
+
+      if (error) {
+        Alert.alert("Login Failed", error.message);
+        return;
+      }
+
+      router.replace("/(tabs)");
+    } catch (error) {
+      Alert.alert("Error", "Something went wrong");
+    } finally {
+      setDemoLoading(false);
     }
   };
 
@@ -226,7 +253,7 @@ export default function Login() {
               <View className="flex-row gap-3">
                 <TouchableOpacity
                   onPress={() => handleSocialLogin("google")}
-                  disabled={socialLoading !== null || loading}
+                  disabled={socialLoading !== null || loading || demoLoading}
                   activeOpacity={0.85}
                   className={`flex-1 flex-row items-center justify-center gap-2 py-3.5 rounded-xl border ${
                     isDark
@@ -238,11 +265,39 @@ export default function Login() {
                     <ActivityIndicator size="small" color={subtleIcon} />
                   ) : (
                     <>
-                      <FontAwesome name="google" size={18} color="#EA4335" />
+                      <Image
+                        source={require("@/assets/images/google.png")}
+                        className="w-[20px] h-[20px]"
+                        resizeMode="contain"
+                      />
                       <Text
                         className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-700"}`}
                       >
                         Google
+                      </Text>
+                    </>
+                  )}
+                </TouchableOpacity>
+
+                <TouchableOpacity
+                  onPress={handleDemoLogin}
+                  disabled={socialLoading !== null || loading || demoLoading}
+                  activeOpacity={0.85}
+                  className={`flex-1 flex-row items-center justify-center gap-2 py-3.5 rounded-xl border ${
+                    isDark
+                      ? "border-gray-700 bg-gray-800"
+                      : "border-gray-200 bg-white"
+                  }`}
+                >
+                  {demoLoading ? (
+                    <ActivityIndicator size="small" color={subtleIcon} />
+                  ) : (
+                    <>
+                      <Feather name="user-check" size={18} color={subtleIcon} />
+                      <Text
+                        className={`text-sm font-medium ${isDark ? "text-white" : "text-gray-700"}`}
+                      >
+                        Demo Login
                       </Text>
                     </>
                   )}
